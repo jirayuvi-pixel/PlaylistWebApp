@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Playlist EP.2</title>
-<!-- v1.65 · หน้า D: ปุ่มเลือกโฟลเดอร์บันทึกใบเช็ค (เหมือนหน้า A) · v1.64 · หน้า D: คะแนนฟรีเติมทุกรอบที่ชื่อซ้ำ + กติกาชื่อซ้ำรอบต้น/ปลายเดือน (2.1 / 2.2) · v1.63 · หน้า D: ปุ่ม ↻ Refresh + ✕ ใบเช็ครูป · v1.62 · หน้า D: ไฟล์ตรวจสอบ (ทุกรายการ + ที่มา ไฟล์/แท็บ/แถว) · v1.61 · หน้า D: แจ้งไฟล์รายการปลดที่สูตรพัง (#NAME?) · แยกแถวเก็บ/ตัดทิ้งเมื่อชื่อซ้ำวันออกเดียวกัน · v1.60 · หน้า C: นับรูปที่ถ่ายก่อนวันที่ของแถวได้ + แสดง "มีรูปแต่ไม่เติม" · v1.56 · แท็บ D คะแนนฟรี + Customization + BKJ1 / BKJ2 / Metro (Metro หลายวัน · BKJ2-35 · ไม่นับวันที่ 1 · ใบเช็คทุกกลุ่ม · วันที่ข้อความ A/B/C) -->
+<!-- v1.66 · หน้า D: ชุดรายการปลดไฟล์เดียว (ส่งออก latest.json · เว็บโหลด data/latest.json ให้เอง) · v1.65 · หน้า D: ปุ่มเลือกโฟลเดอร์บันทึกใบเช็ค (เหมือนหน้า A) · v1.64 · หน้า D: คะแนนฟรีเติมทุกรอบที่ชื่อซ้ำ + กติกาชื่อซ้ำรอบต้น/ปลายเดือน (2.1 / 2.2) · v1.63 · หน้า D: ปุ่ม ↻ Refresh + ✕ ใบเช็ครูป · v1.62 · หน้า D: ไฟล์ตรวจสอบ (ทุกรายการ + ที่มา ไฟล์/แท็บ/แถว) · v1.61 · หน้า D: แจ้งไฟล์รายการปลดที่สูตรพัง (#NAME?) · แยกแถวเก็บ/ตัดทิ้งเมื่อชื่อซ้ำวันออกเดียวกัน · v1.60 · หน้า C: นับรูปที่ถ่ายก่อนวันที่ของแถวได้ + แสดง "มีรูปแต่ไม่เติม" · v1.56 · แท็บ D คะแนนฟรี + Customization + BKJ1 / BKJ2 / Metro (Metro หลายวัน · BKJ2-35 · ไม่นับวันที่ 1 · ใบเช็คทุกกลุ่ม · วันที่ข้อความ A/B/C) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap">
 <style>
@@ -337,11 +337,14 @@ table.ft .pill{font-family:var(--f-ui)}
 #freeBar .stats b{font:600 18px var(--f-mono);color:var(--accent)}
 #btnFreeGo{margin-left:auto}
 button.primary{color:var(--on-tab,#fff)}
+
+.fsrc{background:color-mix(in srgb,var(--accent) 10%,var(--surface));border:1px solid color-mix(in srgb,var(--accent) 35%,var(--line));border-radius:10px;padding:10px 14px;font-size:14px;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+.fsrc b{margin:0 4px}
 </style>
 </head>
 <body>
 <header class="top"><div class="cells" aria-hidden="true"></div><div class="in">
-  <span class="brand">PLAN.<b>B</b> Playlist</span><span class="ep">EP.2 · v1.65</span>
+  <span class="brand">PLAN.<b>B</b> Playlist</span><span class="ep">EP.2 · v1.66</span>
   <span class="sub" id="appSub">จัดรายการสื่อออนไลน์</span>
   <nav class="apptabs" id="appTabs"><button data-app="A" class="on"><i class="dot"></i>A · จัดรายการ</button><button data-app="B"><i class="dot"></i>B · สร้างโฟลเดอร์</button><button data-app="C"><i class="dot"></i>C · เติมคะแนน</button><button data-app="D"><i class="dot"></i>D · คะแนนฟรี</button></nav>
 </div></header>
@@ -2338,8 +2341,14 @@ async function readMetro(book, fileDate) {
 }
 
 async function addFreeFiles(files) {
+  const js = files.filter(f => /\.json$/i.test(f.name));
+  if (js.length) {                                       // ชุดรายการปลด (.json) ที่ส่งออกไว้
+    for (const f of js) { try { importFreeData(JSON.parse(await f.text()), 'ไฟล์ ' + f.name); } catch (e) { $('freeMsg').innerHTML = `<div class="err">อ่านไฟล์ ${esc(f.name)} ไม่ได้: ${esc(e.message)}</div>`; } }
+    await recompute();
+  }
   files = files.filter(f => /\.xls[xm]$/i.test(f.name) && !/^~\$/.test(f.name));
   if (!files.length) return;
+  F.source = null;
   let k = 0;
   for (const f of files) {
     k++; $('freeMsg').innerHTML = `<div class="ldcard"><div class="in"><span class="t">กำลังอ่านรายการปลด… ${k}/${files.length}</span><div class="pbar"><i></i></div><span class="s">${esc(f.name)}</span></div></div>`;
@@ -2622,6 +2631,7 @@ function renderFree(kept, plan) {
   $('freeBar').hidden = false;
   $('freeStats').innerHTML = `<span><b>${kept.length}</b> เรื่องที่เก็บ (≤ ${cfg.maxDays} วัน)</span><span><b>${cut.length}</b> ตัดทิ้ง</span>` + (plan ? `<span><b>${F.writes.length - (plan.dup || []).length}</b> ช่องคะแนนฟรี</span>` + (cfg.dup ? `<span><b>${(plan.dup || []).length}</b> ช่องชื่อซ้ำ</span>` : '') + `<span><b>${nScr}</b> จอ</span>` : '');
   freeDestUI();
+  if (F.source) sourceBanner();
   $('btnFreeGo').disabled = !F.writes.length;
   $('btnFreeGo').textContent = F.writes.length ? `เติมคะแนนฟรี ${F.writes.length} ช่อง` : 'ไม่มีช่องที่ต้องเติม';
 }
@@ -2747,6 +2757,53 @@ $('btnFreeGo').addEventListener('click', async () => {
   for (const c of S.cks) delete c._free;
   await recompute();
 });
+/* ----- ชุดรายการปลดไฟล์เดียว (v1.66): คนทำส่งออก → อัปขึ้นเว็บ data/latest.json → เพื่อนเปิดเว็บแล้วโหลดให้เอง ----- */
+const isoD = d => d instanceof Date ? d.toISOString() : d;
+function exportFreeData() {
+  const ok = F.books.filter(b => !b.error && b.list);
+  if (!ok.length) { toast('ยังไม่มีไฟล์รายการปลด'); return; }
+  const dates = ok.map(b => b.date).sort((a, b) => a - b);
+  const data = { app: 'PlaylistEP2-free', v: 1, month: iso(dates[dates.length - 1]).slice(0, 7), created: new Date().toISOString(),
+    from: iso(dates[0]), to: iso(dates[dates.length - 1]), files: [...new Set(ok.map(b => b.file || b.name))].length,
+    books: ok.map(b => ({ name: b.name, file: b.file || null, fam: b.fam || null, date: isoD(b.date), fileDate: isoD(b.fileDate || null),
+      list: b.list.map(r => ({ name: r.name, type: r.type, onAir: isoD(r.onAir), only: r.only, exc: r.exc || '', note: r.note, pack: r.pack || null,
+        rawOn: r.rawOn instanceof Date ? isoD(r.rawOn) : r.rawOn ?? null, src: r.src || null })) })) };
+  const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'latest.json'; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  toast(`ส่งออกชุดรายการปลด ${data.files} ไฟล์ (${dmy(dates[0])} – ${dmy(dates[dates.length - 1])}) แล้ว`);
+}
+function importFreeData(d, source) {
+  if (!d || d.app !== 'PlaylistEP2-free' || !Array.isArray(d.books)) throw new Error('ไม่ใช่ไฟล์ชุดรายการปลดของแอพนี้');
+  const D = v => v ? new Date(v) : null;
+  F.books = d.books.map(b => ({ name: b.name, file: b.file || undefined, fam: b.fam || undefined, date: D(b.date), fileDate: D(b.fileDate),
+    list: b.list.map(r => ({ ...r, onAir: D(r.onAir), rawOn: typeof r.rawOn === 'string' && /^\d{4}-\d\d-\d\dT/.test(r.rawOn) ? D(r.rawOn) : r.rawOn, pack: r.pack || undefined })) }));
+  F.books.sort((a, b) => a.date - b.date);
+  F.source = { label: source, created: d.created ? new Date(d.created) : null, files: d.files, from: D(d.from), to: D(d.to) };
+}
+function sourceBanner() {
+  const s = F.source;
+  if (!s || !F.books.length) return;
+  const t = s.created ? `${dmy(new Date(Date.UTC(s.created.getFullYear(), s.created.getMonth(), s.created.getDate())))} ${String(s.created.getHours()).padStart(2, '0')}:${String(s.created.getMinutes()).padStart(2, '0')}` : '-';
+  $('freeMsg').innerHTML = `<div class="fsrc">📦 ใช้ชุดรายการปลดจาก<b>${esc(s.label)}</b> · ${s.files || F.books.length} ไฟล์ · ${s.from ? dmy(s.from) : ''} – ${s.to ? dmy(s.to) : ''} · อัปเดตเมื่อ ${t}
+    <span class="note">— ลากแค่ใบเช็ครูปในขั้นที่ 2 ได้เลย</span><button type="button" class="link" id="btnFreeSrcClear">ใช้ไฟล์ของฉันเองแทน</button></div>`;
+  $('btnFreeSrcClear').onclick = () => { F.books = []; F.source = null; $('freeMsg').innerHTML = ''; recompute(); toast('ล้างชุดรายการปลดแล้ว — ลากไฟล์ของคุณเองได้เลย'); };
+}
+{
+  const b = document.createElement('button'); b.type = 'button'; b.className = 'refresh'; b.id = 'btnFreeExport';
+  b.textContent = '📦 ส่งออกชุดรายการปลด (ไฟล์เดียว)'; b.title = 'รวมรายการปลดทุกไฟล์ที่ใส่ไว้เป็นไฟล์เดียว (latest.json) — อัปขึ้นเว็บในโฟลเดอร์ data/ หรือส่งให้เพื่อน แล้วเพื่อนไม่ต้องโหลดไฟล์รายการหนังเอง';
+  b.addEventListener('click', exportFreeData); $('freeCfg').appendChild(b);
+  $('inFree').setAttribute('accept', '.xlsx,.xlsm,.json');
+}
+// เปิดจากเว็บ (GitHub Pages ฯลฯ): โหลด data/latest.json ให้อัตโนมัติ
+(async () => {
+  if (!/^https?:$/.test(location.protocol)) return;
+  try {
+    const r = await fetch('data/latest.json', { cache: 'no-cache' }); if (!r.ok) return;
+    const d = await r.json(); if (F.books.length) return;
+    importFreeData(d, 'เว็บ (data/latest.json)'); await recompute();
+  } catch (e) { }
+})();
 recompute();
 window.__freeDbg = { F, ckBlocks, packOfSheet };
 })();
