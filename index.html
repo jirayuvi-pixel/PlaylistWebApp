@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Playlist EP.2</title>
-<!-- v1.68 · หน้า B: ปุ่มสร้างโฟลเดอร์ Gallery ตามใบเช็ค (Pic @ แพ็ค / จอ) · อ่านชีท Bangkok Jams 2 A/B เป็น BKJ2 · v1.67 · หน้า A: ไม่ใส่รายการ Freeze Screen (ดูจากข้อมูลการออน / หมายเหตุ) + ลบรายการ Freeze ที่อยู่ในใบเช็คแล้ว · v1.66 · หน้า D: ชุดรายการปลดไฟล์เดียว (ส่งออก latest.json · เว็บโหลด data/latest.json ให้เอง) · v1.65 · หน้า D: ปุ่มเลือกโฟลเดอร์บันทึกใบเช็ค (เหมือนหน้า A) · v1.64 · หน้า D: คะแนนฟรีเติมทุกรอบที่ชื่อซ้ำ + กติกาชื่อซ้ำรอบต้น/ปลายเดือน (2.1 / 2.2) · v1.63 · หน้า D: ปุ่ม ↻ Refresh + ✕ ใบเช็ครูป · v1.62 · หน้า D: ไฟล์ตรวจสอบ (ทุกรายการ + ที่มา ไฟล์/แท็บ/แถว) · v1.61 · หน้า D: แจ้งไฟล์รายการปลดที่สูตรพัง (#NAME?) · แยกแถวเก็บ/ตัดทิ้งเมื่อชื่อซ้ำวันออกเดียวกัน · v1.60 · หน้า C: นับรูปที่ถ่ายก่อนวันที่ของแถวได้ + แสดง "มีรูปแต่ไม่เติม" · v1.56 · แท็บ D คะแนนฟรี + Customization + BKJ1 / BKJ2 / Metro (Metro หลายวัน · BKJ2-35 · ไม่นับวันที่ 1 · ใบเช็คทุกกลุ่ม · วันที่ข้อความ A/B/C) -->
+<!-- v1.69 · หน้า A: อ่านรหัสจอ BKJ1_12 / BKJ2_37 / METRO_13 (ใบเช็คกลุ่ม 5) · แก้ชื่อหนังตัวหนังสือสีขาวที่มองไม่เห็น · หน้า B: ชื่อโฟลเดอร์จอเต็มจากชีท Analysis + ขนาดจอ · โฟลเดอร์ชื่อเจ้าของใบเช็ค · Signature Max สร้างพร้อมกัน · v1.68 · หน้า B: ปุ่มสร้างโฟลเดอร์ Gallery ตามใบเช็ค (Pic @ แพ็ค / จอ) · อ่านชีท Bangkok Jams 2 A/B เป็น BKJ2 · v1.67 · หน้า A: ไม่ใส่รายการ Freeze Screen (ดูจากข้อมูลการออน / หมายเหตุ) + ลบรายการ Freeze ที่อยู่ในใบเช็คแล้ว · v1.66 · หน้า D: ชุดรายการปลดไฟล์เดียว (ส่งออก latest.json · เว็บโหลด data/latest.json ให้เอง) · v1.65 · หน้า D: ปุ่มเลือกโฟลเดอร์บันทึกใบเช็ค (เหมือนหน้า A) · v1.64 · หน้า D: คะแนนฟรีเติมทุกรอบที่ชื่อซ้ำ + กติกาชื่อซ้ำรอบต้น/ปลายเดือน (2.1 / 2.2) · v1.63 · หน้า D: ปุ่ม ↻ Refresh + ✕ ใบเช็ครูป · v1.62 · หน้า D: ไฟล์ตรวจสอบ (ทุกรายการ + ที่มา ไฟล์/แท็บ/แถว) · v1.61 · หน้า D: แจ้งไฟล์รายการปลดที่สูตรพัง (#NAME?) · แยกแถวเก็บ/ตัดทิ้งเมื่อชื่อซ้ำวันออกเดียวกัน · v1.60 · หน้า C: นับรูปที่ถ่ายก่อนวันที่ของแถวได้ + แสดง "มีรูปแต่ไม่เติม" · v1.56 · แท็บ D คะแนนฟรี + Customization + BKJ1 / BKJ2 / Metro (Metro หลายวัน · BKJ2-35 · ไม่นับวันที่ 1 · ใบเช็คทุกกลุ่ม · วันที่ข้อความ A/B/C) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap">
 <style>
@@ -344,7 +344,7 @@ button.primary{color:var(--on-tab,#fff)}
 </head>
 <body>
 <header class="top"><div class="cells" aria-hidden="true"></div><div class="in">
-  <span class="brand">PLAN.<b>B</b> Playlist</span><span class="ep">EP.2 · v1.68</span>
+  <span class="brand">PLAN.<b>B</b> Playlist</span><span class="ep">EP.2 · v1.69</span>
   <span class="sub" id="appSub">จัดรายการสื่อออนไลน์</span>
   <nav class="apptabs" id="appTabs"><button data-app="A" class="on"><i class="dot"></i>A · จัดรายการ</button><button data-app="B"><i class="dot"></i>B · สร้างโฟลเดอร์</button><button data-app="C"><i class="dot"></i>C · เติมคะแนน</button><button data-app="D"><i class="dot"></i>D · คะแนนฟรี</button></nav>
 </div></header>
@@ -1282,6 +1282,8 @@ async function writeChecksheet(origBuf, book, plan, opts) {
         const st = inkStyle(+(el.getAttribute('s') || 0)); if (String(st) !== (el.getAttribute('s') || '0')) { el.setAttribute('s', st); ch++; }
       }
       if (ch) x = serialize(d0);
+      const idle = sp.skipSheet || (sp.blocks.every(b => b.skip) && !sp.writeDate);
+      if (idle && !sp.blocks.some(b => b.fzRows && b.fzRows.length)) { if (ch) { zip.file(sh.path, x); report.push({ sheet: sp.sheet, added: 0 }); } continue; }
     }
     if (sp.blocks.some(b => b.fzRows && b.fzRows.length)) {
       x = removeFreezeRows(x, sp, plainStyle);
@@ -1686,7 +1688,7 @@ $('out').addEventListener('click', async e => {
   catch (er) { const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); toast('คัดลอกแล้ว'); } catch (x) { toast('คัดลอกไม่ได้ กรุณาเลือกข้อความเอง'); } ta.remove(); }
 });
 async function buildFor(c) {               // ใบเช็ค 1 ใบ → blob (รันทีละวันตามไฟล์ที่ใส่)
-  const prep = pl => pl.map(p => ({ ...p, blocks: p.blocks.map(b => ({ ...b, skip: !b.source })) })).filter(p => p.writeDate || p.blocks.some(b => !b.skip || (b.fzRows && b.fzRows.length)));
+  const prep = pl => pl.map(p => ({ ...p, blocks: p.blocks.map(b => ({ ...b, skip: !b.source })) }));   // v1.68: ส่งทุกชีท (ชีทที่ไม่มีอะไรเติม จะแก้แค่ชื่อหนังสีขาว)
   const rds = runDates(); const dates = rds.length > 1 ? rds : [null];
   let buf = c.book.orig.slice(0), book = c.book, sheets = c.sheets, blob, report = [];
   for (let i = 0; i < dates.length; i++) {
