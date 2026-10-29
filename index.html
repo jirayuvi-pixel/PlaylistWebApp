@@ -535,7 +535,7 @@ const FAMILIES = [
   { id: 'dusit', test: /DUSIT/i, file: /./, sheet: /Dusit/i },
 ];
 
-function pad2(c) { const s = String(c).trim(); return /^\d$/.test(s) ? '0' + s : s; }
+function pad2(c) { let s = String(c).trim(); const m = /(\d{1,3})$/.exec(s); if (/^(BKJ|METRO)/i.test(s) && m) s = String(+m[1]); return /^\d$/.test(s) ? '0' + s : s; }   // "BKJ1_12" → "12"
 function norm(s) { return String(s).replace(/[\s\-_]/g, '').toUpperCase(); }
 function colLetters(c) { let s = ''; c++; while (c > 0) { const m = (c - 1) % 26; s = String.fromCharCode(65 + m) + s; c = Math.floor((c - 1) / 26); } return s; }
 function colIndex(letters) { let n = 0; for (const ch of letters) n = n * 26 + (ch.charCodeAt(0) - 64); return n - 1; }
@@ -754,6 +754,7 @@ function codeLike(v) {
   if (typeof v === 'number') return Number.isInteger(v) && v > 0 && v < 1000 ? String(v) : null;
   const s = str(v); if (!s) return null;
   if (/^(DGT|ID)[\w\-]*\d[\w\-]*$/i.test(s) || /^\d{1,3}$/.test(s)) return s;
+  if (/^(BKJ\s*\d?|METRO)\s*[_\-]?\s*\d{1,3}$/i.test(s)) return s;   // ใบเช็คกลุ่ม 5: "BKJ1_12" "BKJ2_37" "METRO_13"
   if (/^LA\s*_?\s*PLAN\s*_?\s*B(\s*_?\s*\S.{0,20})?$/i.test(s)) return s;   // จอ LA PlanB มุมใกล้ / มุมไกล / 1 / 2
   return null;
 }
@@ -1240,8 +1241,28 @@ async function writeChecksheet(origBuf, book, plan, opts) {
     const el = ensureCell(doc, r, c, true); setText(doc, el, text);
     const st = outStyle(+(el.getAttribute('s') || 0)); if (st !== null) el.setAttribute('s', st);
   }
+  // ช่องว่างในใบเช็คบางใบตั้งตัวหนังสือสีขาว (มองไม่เห็นบนพื้นขาว) → เขียนชื่อหนังด้วยสีปกติ
+  const iCache = {}; let inkFonts = null;
+  function inkStyle(base) {
+    if (!stylesXml) return base;
+    if (iCache[base] !== undefined) return iCache[base];
+    const cx = /<cellXfs\b[^>]*>([\s\S]*?)<\/cellXfs>/.exec(stylesXml); if (!cx) return base;
+    const xfs = [...cx[1].matchAll(/<xf\b[^>]*?(?:\/>|>[\s\S]*?<\/xf>)/g)].map(x => x[0]);
+    const src = xfs[base]; if (!src) return (iCache[base] = base);
+    const fonts = /<fonts\b[^>]*>([\s\S]*?)<\/fonts>/.exec(stylesXml);
+    const list = fonts ? [...fonts[1].matchAll(/<font\b[^>]*?(?:\/>|>[\s\S]*?<\/font>)/g)].map(x => x[0]) : [];
+    const fid = +((/fontId="(\d+)"/.exec(src) || [0, 0])[1]); const f = list[fid] || '';
+    const white = /<color\b[^>]*(theme="0"|rgb="FFFFFFFF"|rgb="FFFFFF")[^>]*\/>/i.test(f);
+    const fill = +((/fillId="(\d+)"/.exec(src) || [0, 0])[1]);
+    if (!white || fill > 1) return (iCache[base] = base);               // มีสีพื้น (เช่นแถบวันที่) = ตั้งใจให้ขาว ไม่แตะ
+    inkFonts = inkFonts || {};
+    const nf = inkFonts[fid] ?? (inkFonts[fid] = addTo('fonts', f.replace(/<color\b[^>]*\/>/g, '')));
+    const xf = src.replace(/\s(fontId|applyFont)="[^"]*"/g, '').replace(/^<xf\b/, '<xf fontId="' + nf + '" applyFont="1"');
+    return (iCache[base] = addTo('cellXfs', xf));
+  }
   function putName(doc, r, c, name) {
     const el = ensureCell(doc, r, c); setText(doc, el, name);
+    { const st = inkStyle(+(el.getAttribute('s') || 0)); if (st !== null && String(st) !== el.getAttribute('s')) el.setAttribute('s', st); }
     if (isHouse(name)) { const st = yellowStyle(+(el.getAttribute('s') || 0)); if (st !== null) el.setAttribute('s', st); }
   }
   const isBandDay = d => d instanceof Date;
@@ -1254,6 +1275,14 @@ async function writeChecksheet(origBuf, book, plan, opts) {
   for (const sp of plan) {
     const sh = book.sheets.find(s => s.name === sp.sheet); if (!sh) continue;
     let x = await zip.file(sh.path).async('string');
+    { // ชื่อหนังที่อยู่ในใบเช็คแล้วแต่เป็นตัวหนังสือสีขาว (มองไม่เห็น) → เปลี่ยนเป็นสีปกติ
+      const d0 = new DOMParser().parseFromString(x, 'application/xml'); const { map } = getRowMap(d0); let ch = 0;
+      for (const b of sp.blocks) for (let r = sp.d1 + 1; r <= (sp.lastUsed || sp.d1) + 1; r++) {
+        const el = findCell(map, r, b.nameCol); if (!el || !(el.textContent || '').trim()) continue;
+        const st = inkStyle(+(el.getAttribute('s') || 0)); if (String(st) !== (el.getAttribute('s') || '0')) { el.setAttribute('s', st); ch++; }
+      }
+      if (ch) x = serialize(d0);
+    }
     if (sp.blocks.some(b => b.fzRows && b.fzRows.length)) {
       x = removeFreezeRows(x, sp, plainStyle);
       if (sp.skipSheet || sp.blocks.every(b => b.skip)) { zip.file(sh.path, x); report.push({ sheet: sp.sheet, added: 0 }); continue; }
