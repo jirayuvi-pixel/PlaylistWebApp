@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Playlist EP.2</title>
-<!-- v1.75 · หน้า D: ไฟล์/แท็บวันที่ 1 แสดงเป็น "ไม่นับ (วันที่ 1)" · v1.74 · หน้า D: หนังที่ขึ้นวันสุดท้ายของเดือนและยังไม่มีคะแนน → ใส่เลขวันสิ้นเดือนทุกแท็บ · v1.73 · โฟลเดอร์ปลายทางที่จำไว้หาไม่เจอ (ถูกย้าย/ลบ) → ดาวน์โหลดให้แทน + แจ้งให้เลือกใหม่ · v1.72 · หน้า C: รูปที่เปิดไม่ได้ (ชื่อยาว) ใช้วันที่ของรูปเลขใกล้กันในจอเดียวกัน หรือวันที่ที่ตั้งเอง · v1.71 · หน้า C: รูปที่เปิดไม่ได้ (ที่อยู่ไฟล์ยาวเกิน) ข้ามทีละไฟล์ ไม่ทำให้ทั้งการตรวจล้ม + แจ้งให้เปลี่ยนชื่อ · v1.70 · หน้า A: ใบเช็คที่ขึ้นแถววันที่รอไว้แต่ยังว่าง → เติมรายการของวันนั้นได้ · v1.69 · หน้า A: อ่านรหัสจอ BKJ1_12 / BKJ2_37 / METRO_13 (ใบเช็คกลุ่ม 5) · แก้ชื่อหนังตัวหนังสือสีขาวที่มองไม่เห็น · หน้า B: ชื่อโฟลเดอร์จอเต็มจากชีท Analysis + ขนาดจอ · โฟลเดอร์ชื่อเจ้าของใบเช็ค · Signature Max สร้างพร้อมกัน · v1.68 · หน้า B: ปุ่มสร้างโฟลเดอร์ Gallery ตามใบเช็ค (Pic @ แพ็ค / จอ) · อ่านชีท Bangkok Jams 2 A/B เป็น BKJ2 · v1.67 · หน้า A: ไม่ใส่รายการ Freeze Screen (ดูจากข้อมูลการออน / หมายเหตุ) + ลบรายการ Freeze ที่อยู่ในใบเช็คแล้ว · v1.66 · หน้า D: ชุดรายการปลดไฟล์เดียว (ส่งออก latest.json · เว็บโหลด data/latest.json ให้เอง) · v1.65 · หน้า D: ปุ่มเลือกโฟลเดอร์บันทึกใบเช็ค (เหมือนหน้า A) · v1.64 · หน้า D: คะแนนฟรีเติมทุกรอบที่ชื่อซ้ำ + กติกาชื่อซ้ำรอบต้น/ปลายเดือน (2.1 / 2.2) · v1.63 · หน้า D: ปุ่ม ↻ Refresh + ✕ ใบเช็ครูป · v1.62 · หน้า D: ไฟล์ตรวจสอบ (ทุกรายการ + ที่มา ไฟล์/แท็บ/แถว) · v1.61 · หน้า D: แจ้งไฟล์รายการปลดที่สูตรพัง (#NAME?) · แยกแถวเก็บ/ตัดทิ้งเมื่อชื่อซ้ำวันออกเดียวกัน · v1.60 · หน้า C: นับรูปที่ถ่ายก่อนวันที่ของแถวได้ + แสดง "มีรูปแต่ไม่เติม" · v1.56 · แท็บ D คะแนนฟรี + Customization + BKJ1 / BKJ2 / Metro (Metro หลายวัน · BKJ2-35 · ไม่นับวันที่ 1 · ใบเช็คทุกกลุ่ม · วันที่ข้อความ A/B/C) -->
+<!-- v1.76 · หน้า A: ใส่แต่ไฟล์ Metro (หลายวัน) → รันทีละวัน · ใบเช็คที่วันที่แรกค้างจากเทมเพลตเก่า (เช่น 1/6) → แก้เป็นวันที่ 1 ของเดือนที่รัน · v1.75 · หน้า D: ไฟล์/แท็บวันที่ 1 แสดงเป็น "ไม่นับ (วันที่ 1)" · v1.74 · หน้า D: หนังที่ขึ้นวันสุดท้ายของเดือนและยังไม่มีคะแนน → ใส่เลขวันสิ้นเดือนทุกแท็บ · v1.73 · โฟลเดอร์ปลายทางที่จำไว้หาไม่เจอ (ถูกย้าย/ลบ) → ดาวน์โหลดให้แทน + แจ้งให้เลือกใหม่ · v1.72 · หน้า C: รูปที่เปิดไม่ได้ (ชื่อยาว) ใช้วันที่ของรูปเลขใกล้กันในจอเดียวกัน หรือวันที่ที่ตั้งเอง · v1.71 · หน้า C: รูปที่เปิดไม่ได้ (ที่อยู่ไฟล์ยาวเกิน) ข้ามทีละไฟล์ ไม่ทำให้ทั้งการตรวจล้ม + แจ้งให้เปลี่ยนชื่อ · v1.70 · หน้า A: ใบเช็คที่ขึ้นแถววันที่รอไว้แต่ยังว่าง → เติมรายการของวันนั้นได้ · v1.69 · หน้า A: อ่านรหัสจอ BKJ1_12 / BKJ2_37 / METRO_13 (ใบเช็คกลุ่ม 5) · แก้ชื่อหนังตัวหนังสือสีขาวที่มองไม่เห็น · หน้า B: ชื่อโฟลเดอร์จอเต็มจากชีท Analysis + ขนาดจอ · โฟลเดอร์ชื่อเจ้าของใบเช็ค · Signature Max สร้างพร้อมกัน · v1.68 · หน้า B: ปุ่มสร้างโฟลเดอร์ Gallery ตามใบเช็ค (Pic @ แพ็ค / จอ) · อ่านชีท Bangkok Jams 2 A/B เป็น BKJ2 · v1.67 · หน้า A: ไม่ใส่รายการ Freeze Screen (ดูจากข้อมูลการออน / หมายเหตุ) + ลบรายการ Freeze ที่อยู่ในใบเช็คแล้ว · v1.66 · หน้า D: ชุดรายการปลดไฟล์เดียว (ส่งออก latest.json · เว็บโหลด data/latest.json ให้เอง) · v1.65 · หน้า D: ปุ่มเลือกโฟลเดอร์บันทึกใบเช็ค (เหมือนหน้า A) · v1.64 · หน้า D: คะแนนฟรีเติมทุกรอบที่ชื่อซ้ำ + กติกาชื่อซ้ำรอบต้น/ปลายเดือน (2.1 / 2.2) · v1.63 · หน้า D: ปุ่ม ↻ Refresh + ✕ ใบเช็ครูป · v1.62 · หน้า D: ไฟล์ตรวจสอบ (ทุกรายการ + ที่มา ไฟล์/แท็บ/แถว) · v1.61 · หน้า D: แจ้งไฟล์รายการปลดที่สูตรพัง (#NAME?) · แยกแถวเก็บ/ตัดทิ้งเมื่อชื่อซ้ำวันออกเดียวกัน · v1.60 · หน้า C: นับรูปที่ถ่ายก่อนวันที่ของแถวได้ + แสดง "มีรูปแต่ไม่เติม" · v1.56 · แท็บ D คะแนนฟรี + Customization + BKJ1 / BKJ2 / Metro (Metro หลายวัน · BKJ2-35 · ไม่นับวันที่ 1 · ใบเช็คทุกกลุ่ม · วันที่ข้อความ A/B/C) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap">
 <style>
@@ -344,7 +344,7 @@ button.primary{color:var(--on-tab,#fff)}
 </head>
 <body>
 <header class="top"><div class="cells" aria-hidden="true"></div><div class="in">
-  <span class="brand">PLAN.<b>B</b> Playlist</span><span class="ep">EP.2 · v1.75</span>
+  <span class="brand">PLAN.<b>B</b> Playlist</span><span class="ep">EP.2 · v1.76</span>
   <span class="sub" id="appSub">จัดรายการสื่อออนไลน์</span>
   <nav class="apptabs" id="appTabs"><button data-app="A" class="on"><i class="dot"></i>A · จัดรายการ</button><button data-app="B"><i class="dot"></i>B · สร้างโฟลเดอร์</button><button data-app="C"><i class="dot"></i>C · เติมคะแนน</button><button data-app="D"><i class="dot"></i>D · คะแนนฟรี</button></nav>
 </div></header>
@@ -1324,6 +1324,18 @@ async function writeChecksheet(origBuf, book, plan, opts) {
     zip.file(sh.path, serialize(doc));
     report.push({ sheet: sp.sheet, added });
   }
+  // v1.76 แก้วันที่แรกที่ค้างจากเทมเพลตเก่า (ทุกจอในชีท)
+  for (const sp of plan) {
+    if (!sp.fixFirstDate) continue;
+    const sh = book.sheets.find(s => s.name === sp.sheet); if (!sh) continue;
+    const doc = new DOMParser().parseFromString(await zip.file(sh.path).async('string'), 'application/xml');
+    const ns = doc.documentElement.namespaceURI, { map } = getRowMap(doc);
+    for (const b of sp.blocks) {
+      const el = findCell(map, sp.fixRow, b.dateCol); if (!el) continue;
+      clearCell(el); const v = doc.createElementNS(ns, 'v'); v.textContent = String(sp.fixFirstDate); el.appendChild(v);
+    }
+    zip.file(sh.path, serialize(doc));
+  }
   if (stylesXml) zip.file('xl/styles.xml', stylesXml);
   // recalc on open; drop calcChain (row positions may have moved)
   if (zip.file('xl/calcChain.xml')) {
@@ -1556,6 +1568,8 @@ async function setChecksheets(files, fromB) {
 function chosenDate() { const v = $('inDate').value; if (!v) return null; const [y, m, d] = v.split('-').map(Number); return new Date(Date.UTC(y, m - 1, d)); }
 function runDates() {   // วันที่ของไฟล์รายการหนังที่ใส่ (ไม่นับ Metro ที่มีหลายแท็บ)
   const m = new Map(); for (const b of S.srcBooks) if (b.date && !b.sources.every(x => x.kind === 'daily')) m.set(ymd(b.date), b.date);
+  // ใส่แต่ไฟล์ Metro (หลายไฟล์ หลายวัน) → รันทีละวันตามวันที่ของไฟล์ Metro (v1.76)
+  if (!m.size) for (const b of S.srcBooks) if (b.date && b.sources.length && b.sources.every(x => x.kind === 'daily')) m.set(ymd(b.date), b.date);
   return [...m.values()].sort((a, b) => a - b);
 }
 // v1.67 ชื่อ Freeze Screen จากไฟล์รายการหนังที่ใส่ (ใช้ลบออกจากใบเช็คที่ใส่ไปแล้ว)
@@ -1569,11 +1583,25 @@ function dayFilled(b, run) {
   if (!(b.ownDates || {})[ymd(run)]) return false;
   return (b.rowsInfo || []).some(x => x.date && ymd(x.date) === ymd(run));
 }
+const ym = d => d.toISOString().slice(0, 7);
 function computePlan(runOverride, sheetsOverride) {
   const keep = makeFilter($('excl').value.split('\n').map(s => s.trim()).filter(Boolean));
   const FZ = freezeSet();
   const run = runOverride || chosenDate();
-  return (sheetsOverride || S.ckSheets).map(sh => {
+  return (sheetsOverride || S.ckSheets).map(sh0 => {
+    // v1.76 ใบเช็คที่วันที่แรกค้างจากเทมเพลตเก่า (เช่น 1/6/2026 แต่รันเดือน พ.ย.) → ถือเป็นวันที่ 1 ของเดือนที่รัน และแก้วันที่ในใบเช็คให้
+    let sh = sh0, fixSerial = null;
+    if (run && sh0.date && !sh0.needDate && sh0.date.getUTCDate() === 1 && ym(sh0.date) !== ym(run)) {
+      const secs0 = sh0.sectionDates || [];
+      const others = secs0.filter(x => x.date && ymd(x.date) !== ymd(sh0.date));
+      if (others.every(x => ym(x.date) === ym(run)) && run > sh0.date) {
+        const d1 = new Date(Date.UTC(run.getUTCFullYear(), run.getUTCMonth(), 1));
+        sh = { ...sh0, date: d1, sectionDates: secs0.map(x => x.date && ymd(x.date) === ymd(sh0.date) ? { ...x, date: d1 } : x) };
+        sh.blocks = sh0.blocks.map(b => ({ ...b, rowsInfo: (b.rowsInfo || []).map(x => x.date && ymd(x.date) === ymd(sh0.date) ? { ...x, date: d1 } : x),
+          ownDates: Object.fromEntries(Object.entries(b.ownDates || {}).map(([k, v]) => [k === ymd(sh0.date) ? ymd(d1) : k, v])) }));
+        fixSerial = Math.round(d1.getTime() / 86400000) + 25569;
+      }
+    }
     // one run = one date: day 1 → fill all films; later day → append only new films below what is already there
     let mode = 'day1', note = '', insertAt = null, fillAt = null, fillH = 0, fillPast = false;
     const secs = sh.sectionDates || [];
@@ -1604,7 +1632,8 @@ function computePlan(runOverride, sheetsOverride) {
     const sp = {
       sheet: sh.name, d1: sh.d1, d2: sh.d2, date, mode, note, needDate: !!sh.needDate, lastUsed: sh.lastUsed, dateRows: sh.dateRows,
       append: mode === 'append', skipSheet: mode === 'skip', insertAt, fillAt, fillH,
-      writeDate: sh.needDate && run ? Math.round(run.getTime() / 86400000) + 25569 : null,
+      writeDate: sh.needDate && run ? Math.round(run.getTime() / 86400000) + 25569 : null, fixFirstDate: fixSerial, fixRow: sh0.d1 + 1,
+      note2: fixSerial ? `วันที่แรกในใบเช็คเป็น ${fmtDate(sh0.date)} (ค้างจากเทมเพลตเก่า) → แก้เป็น ${fmtDate(sh.date)}` : '',
       blocks: sh.blocks.map((b, i) => {
         const key = sh.name + '#' + i; const am = autoMatch(sh, b, S.sources, date);
         let src = am.source, fam = am.family;
@@ -1676,6 +1705,7 @@ function render() {
       tag = need > cap ? `<span class="pill warn">จะแทรกเพิ่ม ${need - cap} แถว</span>` : '';
       bar = sp.needDate ? (sp.date ? esc(fmtDate(sp.date)) + '<span class="fill">ระบบจะเติมวันที่นี้ให้ในแถว ' + (sp.d1 + 1) + '</span>' : '<span class="fill">ใบเช็คยังไม่มีวันที่ เลือก "วันที่ของรายการ" ด้านบน</span>') : esc(fmtDate(sp.date));
     }
+    if (sp.note2) meta += ` · <b style="color:#b45309">⚠ ${esc(sp.note2)}</b>`;
     return `<section class="sheet"><div class="hd"><h3>${esc(sp.sheet)}</h3><span class="meta">${meta}</span>${tag}</div>
       ${bar ? `<div class="datebar">${bar}</div>` : ''}${sp.mode === 'skip' && !sp.blocks.some(b => b.fzRows.length) ? '' : `<div class="cols">${cols}</div>`}</section>`;
   }).join('');
