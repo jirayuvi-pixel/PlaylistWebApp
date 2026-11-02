@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Playlist EP.2</title>
-<!-- v1.77 · หน้า C: เลือกโฟลเดอร์บันทึกใบเช็คได้ (ใช้ร่วมกับหน้า A / D) · v1.76 · หน้า A: ใส่แต่ไฟล์ Metro (หลายวัน) → รันทีละวัน · ใบเช็คที่วันที่แรกค้างจากเทมเพลตเก่า (เช่น 1/6) → แก้เป็นวันที่ 1 ของเดือนที่รัน · v1.75 · หน้า D: ไฟล์/แท็บวันที่ 1 แสดงเป็น "ไม่นับ (วันที่ 1)" · v1.74 · หน้า D: หนังที่ขึ้นวันสุดท้ายของเดือนและยังไม่มีคะแนน → ใส่เลขวันสิ้นเดือนทุกแท็บ · v1.73 · โฟลเดอร์ปลายทางที่จำไว้หาไม่เจอ (ถูกย้าย/ลบ) → ดาวน์โหลดให้แทน + แจ้งให้เลือกใหม่ · v1.72 · หน้า C: รูปที่เปิดไม่ได้ (ชื่อยาว) ใช้วันที่ของรูปเลขใกล้กันในจอเดียวกัน หรือวันที่ที่ตั้งเอง · v1.71 · หน้า C: รูปที่เปิดไม่ได้ (ที่อยู่ไฟล์ยาวเกิน) ข้ามทีละไฟล์ ไม่ทำให้ทั้งการตรวจล้ม + แจ้งให้เปลี่ยนชื่อ · v1.70 · หน้า A: ใบเช็คที่ขึ้นแถววันที่รอไว้แต่ยังว่าง → เติมรายการของวันนั้นได้ · v1.69 · หน้า A: อ่านรหัสจอ BKJ1_12 / BKJ2_37 / METRO_13 (ใบเช็คกลุ่ม 5) · แก้ชื่อหนังตัวหนังสือสีขาวที่มองไม่เห็น · หน้า B: ชื่อโฟลเดอร์จอเต็มจากชีท Analysis + ขนาดจอ · โฟลเดอร์ชื่อเจ้าของใบเช็ค · Signature Max สร้างพร้อมกัน · v1.68 · หน้า B: ปุ่มสร้างโฟลเดอร์ Gallery ตามใบเช็ค (Pic @ แพ็ค / จอ) · อ่านชีท Bangkok Jams 2 A/B เป็น BKJ2 · v1.67 · หน้า A: ไม่ใส่รายการ Freeze Screen (ดูจากข้อมูลการออน / หมายเหตุ) + ลบรายการ Freeze ที่อยู่ในใบเช็คแล้ว · v1.66 · หน้า D: ชุดรายการปลดไฟล์เดียว (ส่งออก latest.json · เว็บโหลด data/latest.json ให้เอง) · v1.65 · หน้า D: ปุ่มเลือกโฟลเดอร์บันทึกใบเช็ค (เหมือนหน้า A) · v1.64 · หน้า D: คะแนนฟรีเติมทุกรอบที่ชื่อซ้ำ + กติกาชื่อซ้ำรอบต้น/ปลายเดือน (2.1 / 2.2) · v1.63 · หน้า D: ปุ่ม ↻ Refresh + ✕ ใบเช็ครูป · v1.62 · หน้า D: ไฟล์ตรวจสอบ (ทุกรายการ + ที่มา ไฟล์/แท็บ/แถว) · v1.61 · หน้า D: แจ้งไฟล์รายการปลดที่สูตรพัง (#NAME?) · แยกแถวเก็บ/ตัดทิ้งเมื่อชื่อซ้ำวันออกเดียวกัน · v1.60 · หน้า C: นับรูปที่ถ่ายก่อนวันที่ของแถวได้ + แสดง "มีรูปแต่ไม่เติม" · v1.56 · แท็บ D คะแนนฟรี + Customization + BKJ1 / BKJ2 / Metro (Metro หลายวัน · BKJ2-35 · ไม่นับวันที่ 1 · ใบเช็คทุกกลุ่ม · วันที่ข้อความ A/B/C) -->
+<!-- v1.82 · หน้า A: ชื่อหนังไม่เอาสไตล์ตัวใหญ่จากหัวชีท (ชื่อจอ 30pt ที่ merge ลงมา) — ใช้สไตล์ของคอลัมน์แทน · v1.81 · หน้า A: Prudential Sathorn (แท็บ PrudentialSathorn) — ดูหมายเหตุ ออนเฉพาะ/ยกเว้น · ข้าม "ออนเมื่อ Approve" · v1.80 · หน้า A: ใบเช็คเปล่าที่มีเลขคำอธิบายสี (เช่น 16 / ออกวันที่) ข้างจอสุดท้าย ไม่นับเป็นจอ → จอสุดท้าย (DGT-A1008) ได้รายการ · v1.79 · หน้า A: อ่านจอ Dusit Central Park ในใบเช็ค (รหัส "Dusit Central") · v1.78 · หน้า A: Dusit Central Park — ข้ามแถว "On 2 Nov / On5 Nov / On 7-21 Nov …" · CPN_ / VMS_ ใส่ # + ไฮไลท์เหลือง + อยู่บนสุด · v1.77 · หน้า C: เลือกโฟลเดอร์บันทึกใบเช็คได้ (ใช้ร่วมกับหน้า A / D) · v1.76 · หน้า A: ใส่แต่ไฟล์ Metro (หลายวัน) → รันทีละวัน · ใบเช็คที่วันที่แรกค้างจากเทมเพลตเก่า (เช่น 1/6) → แก้เป็นวันที่ 1 ของเดือนที่รัน · v1.75 · หน้า D: ไฟล์/แท็บวันที่ 1 แสดงเป็น "ไม่นับ (วันที่ 1)" · v1.74 · หน้า D: หนังที่ขึ้นวันสุดท้ายของเดือนและยังไม่มีคะแนน → ใส่เลขวันสิ้นเดือนทุกแท็บ · v1.73 · โฟลเดอร์ปลายทางที่จำไว้หาไม่เจอ (ถูกย้าย/ลบ) → ดาวน์โหลดให้แทน + แจ้งให้เลือกใหม่ · v1.72 · หน้า C: รูปที่เปิดไม่ได้ (ชื่อยาว) ใช้วันที่ของรูปเลขใกล้กันในจอเดียวกัน หรือวันที่ที่ตั้งเอง · v1.71 · หน้า C: รูปที่เปิดไม่ได้ (ที่อยู่ไฟล์ยาวเกิน) ข้ามทีละไฟล์ ไม่ทำให้ทั้งการตรวจล้ม + แจ้งให้เปลี่ยนชื่อ · v1.70 · หน้า A: ใบเช็คที่ขึ้นแถววันที่รอไว้แต่ยังว่าง → เติมรายการของวันนั้นได้ · v1.69 · หน้า A: อ่านรหัสจอ BKJ1_12 / BKJ2_37 / METRO_13 (ใบเช็คกลุ่ม 5) · แก้ชื่อหนังตัวหนังสือสีขาวที่มองไม่เห็น · หน้า B: ชื่อโฟลเดอร์จอเต็มจากชีท Analysis + ขนาดจอ · โฟลเดอร์ชื่อเจ้าของใบเช็ค · Signature Max สร้างพร้อมกัน · v1.68 · หน้า B: ปุ่มสร้างโฟลเดอร์ Gallery ตามใบเช็ค (Pic @ แพ็ค / จอ) · อ่านชีท Bangkok Jams 2 A/B เป็น BKJ2 · v1.67 · หน้า A: ไม่ใส่รายการ Freeze Screen (ดูจากข้อมูลการออน / หมายเหตุ) + ลบรายการ Freeze ที่อยู่ในใบเช็คแล้ว · v1.66 · หน้า D: ชุดรายการปลดไฟล์เดียว (ส่งออก latest.json · เว็บโหลด data/latest.json ให้เอง) · v1.65 · หน้า D: ปุ่มเลือกโฟลเดอร์บันทึกใบเช็ค (เหมือนหน้า A) · v1.64 · หน้า D: คะแนนฟรีเติมทุกรอบที่ชื่อซ้ำ + กติกาชื่อซ้ำรอบต้น/ปลายเดือน (2.1 / 2.2) · v1.63 · หน้า D: ปุ่ม ↻ Refresh + ✕ ใบเช็ครูป · v1.62 · หน้า D: ไฟล์ตรวจสอบ (ทุกรายการ + ที่มา ไฟล์/แท็บ/แถว) · v1.61 · หน้า D: แจ้งไฟล์รายการปลดที่สูตรพัง (#NAME?) · แยกแถวเก็บ/ตัดทิ้งเมื่อชื่อซ้ำวันออกเดียวกัน · v1.60 · หน้า C: นับรูปที่ถ่ายก่อนวันที่ของแถวได้ + แสดง "มีรูปแต่ไม่เติม" · v1.56 · แท็บ D คะแนนฟรี + Customization + BKJ1 / BKJ2 / Metro (Metro หลายวัน · BKJ2-35 · ไม่นับวันที่ 1 · ใบเช็คทุกกลุ่ม · วันที่ข้อความ A/B/C) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap">
 <style>
@@ -344,7 +344,7 @@ button.primary{color:var(--on-tab,#fff)}
 </head>
 <body>
 <header class="top"><div class="cells" aria-hidden="true"></div><div class="in">
-  <span class="brand">PLAN.<b>B</b> Playlist</span><span class="ep">EP.2 · v1.77</span>
+  <span class="brand">PLAN.<b>B</b> Playlist</span><span class="ep">EP.2 · v1.82</span>
   <span class="sub" id="appSub">จัดรายการสื่อออนไลน์</span>
   <nav class="apptabs" id="appTabs"><button data-app="A" class="on"><i class="dot"></i>A · จัดรายการ</button><button data-app="B"><i class="dot"></i>B · สร้างโฟลเดอร์</button><button data-app="C"><i class="dot"></i>C · เติมคะแนน</button><button data-app="D"><i class="dot"></i>D · คะแนนฟรี</button></nav>
 </div></header>
@@ -430,7 +430,7 @@ button.primary{color:var(--on-tab,#fff)}
       <li>วันถัดไปใส่เฉพาะ ขึ้นใหม่, ขึ้นใหม่ไฟล์เดิม, ต่อสัญญา + ขึ้นใหม่ไฟล์เดิม, ไฮไลท์เหลือง (Metro: เหลืองและสีครีม ตามแท็บของวันที่นั้น) และไม่ใส่ซ้ำกับที่มีในใบเช็คแล้วในช่วงวันที่ 1–15 (16–สิ้นเดือนนับใหม่ ซ้ำกับรอบ 1–15 ได้) · แถบวันที่ 1–15 สีฟ้า, 16–สิ้นเดือน สีม่วง</li>
       <li>รันวันที่ย้อนหลังที่ใบเช็คยังไม่มีได้ ระบบแทรกก่อนวันถัดไปให้ (ไม่ใส่ "ออก" ย้อนหลัง)</li>
       <li>หนังในใบเช็คที่ไม่อยู่ในไฟล์ของวันนี้แล้ว ใส่ "ออก N" ข้างชื่อให้ (ตัวแดง ชิดขวา)</li>
-      <li>หนังที่ขึ้นต้นด้วย PB_ / MD_ / PR_ ใส่ # ข้างหน้า (#PB_ …) ไฮไลท์เหลือง และอยู่บนสุดก่อนรายการ A B C …</li>
+      <li>หนังที่ขึ้นต้นด้วย PB_ / MD_ / PR_ / CPN_ / VMS_ ใส่ # ข้างหน้า (#PB_ … #CPN_ … #VMS_ …) ไฮไลท์เหลือง และอยู่บนสุดก่อนรายการ A B C …</li><li>ไม่ใส่แถวหมายเหตุที่ขึ้นต้นด้วย "On + ตัวเลข" เช่น On 2 Nov / On5 Nov / On 7-21 Nov / On 24 Nov 26 / Ver Vanilla และ "ออนเมื่อ Approve"</li><li>Prudential Sathorn: ดูหมายเหตุ — "ออนเฉพาะ …" ใส่เมื่อมี สาทร / Prudential ในรายชื่อ · "ทุกจอยกเว้น …" ที่มีชื่อจอนี้ ไม่ใส่</li>
     </ul>
     <p class="note" style="margin:10px 0 4px">ชื่อที่ไม่ต้องใส่ (หนึ่งบรรทัดต่อหนึ่งรูปแบบ, ใช้ regex)</p>
     <textarea id="excl" spellcheck="false"></textarea>
@@ -533,6 +533,8 @@ const FAMILIES = [
   { id: 'metro', test: /METRO/i, kind: 'daily', file: /Metro/i, sheet: /./ },
   { id: 'la', test: /LA\s*_?\s*PLAN\s*_?\s*B/i, file: /LA\s*_?\s*PlanB/i, sheet: /./ },
   { id: 'dusit', test: /DUSIT/i, file: /./, sheet: /Dusit/i },
+  // v1.81 Prudential Sathorn (แท็บ PrudentialSathorn ในไฟล์ Show DC) — ดูหมายเหตุ "ออนเฉพาะ … / ยกเว้น …" ว่าจอนี้อยู่ในรายชื่อไหม
+  { id: 'prudential', test: /PRUDENTIAL|SATHORN|สาทร|สาธร/i, file: /./, sheet: /Prudential/i, here: /prudential|สาทร|สาธร/i },
 ];
 
 function pad2(c) { let s = String(c).trim(); const m = /(\d{1,3})$/.exec(s); if (/^(BKJ|METRO)/i.test(s) && m) s = String(+m[1]); return /^\d$/.test(s) ? '0' + s : s; }   // "BKJ1_12" → "12"
@@ -690,7 +692,7 @@ async function detectSources(book) {
         const name = str(rw[ni]), type = str(rw[ti]);
         if (!name || !type) continue;
         if (ix.note >= 0 && isFreeze(rw[ix.note])) { book.freeze.add(name); continue; }
-        items.push({ name, type, status: str(rw[ix.status]), only: str(rw[ix.only]), exc: str(rw[ix.exc]),
+        items.push({ name, type, note: ix.note >= 0 ? str(rw[ix.note]) : '', status: str(rw[ix.status]), only: str(rw[ix.only]), exc: str(rw[ix.exc]),
           isNew: isNewMark(str(rw[ix.status]), rows.fill[rr] && rows.fill[rr][ni]),
           traffic: str(rw[ix.nopb]) === 'Traffic' || str(rw[ix.comp]) === 'Traffic' });
       }
@@ -756,6 +758,8 @@ function codeLike(v) {
   if (/^(DGT|ID)[\w\-]*\d[\w\-]*$/i.test(s) || /^\d{1,3}$/.test(s)) return s;
   if (/^(BKJ\s*\d?|METRO)\s*[_\-]?\s*\d{1,3}$/i.test(s)) return s;   // ใบเช็คกลุ่ม 5: "BKJ1_12" "BKJ2_37" "METRO_13"
   if (/^LA\s*_?\s*PLAN\s*_?\s*B(\s*_?\s*\S.{0,20})?$/i.test(s)) return s;   // จอ LA PlanB มุมใกล้ / มุมไกล / 1 / 2
+  if (/^(PRUDENTIAL|SATHORN)(\s*_?\s*\S.{0,30})?$/i.test(s)) return s;   // v1.81 จอ Prudential Sathorn
+  if (/^DUSIT(\s*_?\s*\S.{0,24})?$/i.test(s) && !/PARK\s*$/i.test(s)) return s;   // v1.78 จอ Dusit Central Park (ใบเช็คกลุ่ม 5: "Dusit Central")
   return null;
 }
 const TEXT_DATE = /^\d{1,2}\/\d{1,2}\/\d{2,4}$/;
@@ -788,7 +792,9 @@ function guessLayout(rows) {
   for (let r = hdr; r < Math.min(rows.length, hdr + 25); r++) {
     const rw = rows[r] || [];
     if (rw.some(v => str(v).startsWith('#'))) continue;
-    const cols = []; rw.forEach((v, c) => { if (lim(c) && codeLike(v) && !(typeof v === 'number' && r < hdr)) cols.push(c); });
+    // v1.80 ตัวเลขคำอธิบายสี (เช่น 16 แล้วข้างล่างเป็น "ออกวันที่") ไม่ใช่รหัสจอ
+    const legendNum = (v, c) => typeof v === 'number' && (/^ออก/.test(str(cell(rows, r + 1, c))) || /Have a picture/i.test(str(cell(rows, r, c + 1))));
+    const cols = []; rw.forEach((v, c) => { if (lim(c) && codeLike(v) && !(typeof v === 'number' && r < hdr) && !legendNum(v, c)) cols.push(c); });
     if (cols.length && (!best || cols.length > best.cols.length)) best = { r, cols };
   }
   if (!best) return null;
@@ -914,7 +920,7 @@ function sourceDate(book, rowsOfFirstTable) {
 
 /* ---------- matching & resolving ---------- */
 function familyOf(sheet, block) {
-  const t = sheet.name + ' ' + (block.label || '');
+  const t = sheet.name + ' ' + (block.label || '') + ' ' + (block.codes || []).join(' ');
   return FAMILIES.find(f => f.test.test(t)) || null;
 }
 const ymd = d => d instanceof Date ? d.toISOString().slice(0, 10) : '';
@@ -960,10 +966,17 @@ function makeFilter(excludes) {
 }
 const SPECIFIC = /^([A-Z]+\d*-\d+)\s*_/i;
 function tokens(s) { return String(s || '').toUpperCase().split(/[\s,;\/]+/).map(x => x.replace(/[^\w\-]/g, '')).filter(Boolean); }
+// หมายเหตุ: "ออนเฉพาะ A / B / C" → ใส่เฉพาะเมื่อมีจอนี้ในรายชื่อ · "ทุกจอยกเว้น A , B" → ไม่ใส่ถ้ามีจอนี้
+function noteAllows(note, here) {
+  const i = note.lastIndexOf('เฉพาะ'); if (i >= 0) return here.test(note.slice(i + 5));
+  const j = note.indexOf('ยกเว้น'); if (j >= 0) return !here.test(note.slice(j + 6));
+  return true;
+}
 function resolveTable(src, screen, fam) {
   const out = [];
   for (const it of src.items) {
     if (it.traffic || it.status === 'ถอด') continue;
+    if (fam && fam.here && it.note && !noteAllows(it.note, fam.here)) continue;
     const sp = SPECIFIC.exec(it.type);
     if (sp) { if (!screen || norm(sp[1]) !== norm(screen)) continue; }
     if (screen) {
@@ -980,15 +993,17 @@ function resolveTable(src, screen, fam) {
 // รายการที่ขึ้นต้นด้วย # (#PB_ #MD_ #PR_) อยู่บนสุด แล้วตามด้วย A B C …
 function sortKey(t) { return (t.startsWith('#') ? '\u0000' : '') + t.replace(/^#/, '').toLowerCase().replace(/([\u0E40-\u0E44])([\u0E01-\u0E2E])/g, '$2$1'); }
 const bySort = (a, b) => { const x = sortKey(a), y = sortKey(b); return x < y ? -1 : x > y ? 1 : 0; };
+// v1.78 แถวหมายเหตุ "On 2 Nov" / "On5 Nov" / "On 7-21 Nov" / "On 24 Nov 26 / Ver Vanilla" ไม่ใช่ชื่อหนัง → ข้าม
+const ON_NOTE = /^(On\s*\d|Content\s.*นาที|ออนเมื่อ)/i;
 function finalize(names, keep) {
   const seen = new Set(), out = [];
-  for (const n of names) { const t = n.trim(); if (!t || seen.has(t) || !keep(t)) continue; seen.add(t); out.push(t); }
+  for (const n of names) { const t = n.trim(); if (!t || seen.has(t) || !keep(t) || ON_NOTE.test(t)) continue; seen.add(t); out.push(t); }
   return out.sort((a, b) => { const x = sortKey(a), y = sortKey(b); return x < y ? -1 : x > y ? 1 : 0; });
 }
 // งานของบริษัทเอง (PB_ / MD_ / PR_) ใส่ # ข้างหน้า และไฮไลท์เหลือง
-const HOUSE = /^(PB|MD|PR)_/i;
+const HOUSE = /^(PB|MD|PR|CPN|VMS\d*)_/i;     // v1.78 + CPN_ / VMS_ (Dusit Central Park)
 const mark = n => (HOUSE.test(n) ? '#' + n : n);
-const isHouse = n => /^#(PB|MD|PR)_/i.test(n);
+const isHouse = n => /^#(PB|MD|PR|CPN|VMS\d*)_/i.test(n);
 const windowOf = d => d.getUTCFullYear() * 100 + d.getUTCMonth() * 2 + (d.getUTCDate() > 15 ? 1 : 0); // 1–15 / 16–สิ้นเดือน
 // days: [{date, label, entries:[{name,isNew}]}] sorted by date
 function buildSections(days, day1Date, keep) {
@@ -1095,7 +1110,7 @@ function insertRows(doc, at, n, styleRowNum) {
     sd.insertBefore(row, before);
   }
 }
-function ensureCell(doc, r, c, noInherit) {
+function ensureCell(doc, r, c, noInherit, floor) {
   const { sd, map } = getRowMap(doc); const ns = doc.documentElement.namespaceURI;
   let row = map.get(r);
   if (!row) {
@@ -1112,10 +1127,14 @@ function ensureCell(doc, r, c, noInherit) {
   }
   const nc = doc.createElementNS(ns, 'c'); nc.setAttribute('r', ref);
   // style from the nearest cell above in the same column
-  if (!noInherit) for (let k = r - 1; k > Math.max(0, r - 40); k--) {
+  // v1.82 floor = แถววันที่: ไม่ไปเอาสไตล์จากหัวชีท (เช่นชื่อจอตัวใหญ่ 30pt ที่ merge ลงมา) → ใช้สไตล์ของคอลัมน์แทน
+  if (!noInherit) for (let k = r - 1; k > Math.max(floor || 0, r - 40); k--) {
     const rw = map.get(k); if (!rw) continue; let hit = null;
     for (let el = rw.firstElementChild; el; el = el.nextElementSibling) if (el.localName === 'c' && el.getAttribute('r') === colLetters(c) + k) { hit = el; break; }
     if (hit && hit.hasAttribute('s')) { nc.setAttribute('s', hit.getAttribute('s')); break; }
+  }
+  if (!noInherit && floor && !nc.hasAttribute('s')) {
+    for (const col of doc.getElementsByTagName('col')) if (+col.getAttribute('min') <= c + 1 && c + 1 <= +col.getAttribute('max') && col.getAttribute('style')) { nc.setAttribute('s', col.getAttribute('style')); break; }
   }
   row.insertBefore(nc, before); return nc;
 }
@@ -1260,8 +1279,9 @@ async function writeChecksheet(origBuf, book, plan, opts) {
     const xf = src.replace(/\s(fontId|applyFont)="[^"]*"/g, '').replace(/^<xf\b/, '<xf fontId="' + nf + '" applyFont="1"');
     return (iCache[base] = addTo('cellXfs', xf));
   }
+  let nameFloor = 0;                                     // แถววันที่ของชีทที่กำลังเขียน (1-based)
   function putName(doc, r, c, name) {
-    const el = ensureCell(doc, r, c); setText(doc, el, name);
+    const el = ensureCell(doc, r, c, false, nameFloor); setText(doc, el, name);
     { const st = inkStyle(+(el.getAttribute('s') || 0)); if (st !== null && String(st) !== el.getAttribute('s')) el.setAttribute('s', st); }
     if (isHouse(name)) { const st = yellowStyle(+(el.getAttribute('s') || 0)); if (st !== null) el.setAttribute('s', st); }
   }
@@ -1291,6 +1311,7 @@ async function writeChecksheet(origBuf, book, plan, opts) {
     }
     if (sp.skipSheet) continue;
     const d1 = sp.d1 + 1;                                // 1-based date row
+    nameFloor = d1;
     if (sp.sections) { zip.file(sh.path, writeSections(x, sp, dateStyle, isBandDay, paintBand, putName)); report.push({ sheet: sp.sheet, added: 0 }); continue; }
     if (sp.append) { zip.file(sh.path, writeAppend(x, sp, dateStyle, isBandDay, paintBand, putName, putOut, plainStyle)); report.push({ sheet: sp.sheet, added: 0 }); continue; }
     const cap = sp.d2 !== null ? sp.d2 - sp.d1 - 1 : Infinity;
