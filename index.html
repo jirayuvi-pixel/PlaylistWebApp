@@ -391,7 +391,7 @@ button.primary{color:var(--on-tab,#fff)}
 </head>
 <body>
 <header class="top"><div class="cells" aria-hidden="true"></div><div class="in">
-  <span class="brand">PLAN.<b>B</b> Playlist</span><span class="ep">EP.2 · v2.10</span>
+  <span class="brand">PLAN.<b>B</b> Playlist</span><span class="ep">EP.2 · v2.11</span>
   <span class="sub" id="appSub">จัดรายการสื่อออนไลน์</span>
   <nav class="apptabs" id="appTabs"><button data-app="A" class="on"><i class="dot"></i>A · จัดรายการ</button><button data-app="B"><i class="dot"></i>B · สร้างโฟลเดอร์</button><button data-app="C"><i class="dot"></i>C · เติมคะแนน</button><button data-app="D"><i class="dot"></i>D · คะแนนฟรี</button></nav>
   <button type="button" class="npbtn" id="npBtn" title="ดูว่าเวอร์ชันนี้อัพเดทอะไรใหม่">📝 NotePatch <span class="npv" id="npVer"></span></button>
@@ -582,7 +582,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 const DEFAULT_EXCLUDES = [
   '^FastAd', 'FastAds', '^Programm?atic', '^On เมื่อมีไฟล์', '^0$', '^#N/A$', '^#REF!$'
 ];
-const CODE_ALIASES = { 'ID25': 'THECITY' };       // ใบเช็ค ID-25 = บล็อก "THE CITY" ในไฟล์ CITY
+const CODE_ALIASES = { 'ID25': 'THECITY', 'THEPRIME9': 'EKAMAIEXPRESSWAY', 'PR9': 'EKAMAIEXPRESSWAY' };       // ใบเช็ค ID-25 = บล็อก "THE CITY" ในไฟล์ CITY · v2.11 The Prime 9 (PR9) = บล็อก "EkamaiExpressway" ในไฟล์ 80Blue
 const FAMILIES = [
   { id: 'bkj1', test: /JAMS?\s*_?\s*1(?!\d)|BKJ\s*_?\s*1(?!\d)/i, file: /BKJ\s*1/i, sheet: /BKJ\s*ALL/i,
     screen: c => 'BKJ-' + pad2(c), strip: /^BKJ\d?_/i },
@@ -825,6 +825,7 @@ function codeLike(v) {
   if (/^(BKJ\s*\d?|METRO)\s*[_\-]?\s*\d{1,3}$/i.test(s)) return s;   // ใบเช็คกลุ่ม 5: "BKJ1_12" "BKJ2_37" "METRO_13"
   if (/^LA\s*_?\s*PLAN\s*_?\s*B(\s*_?\s*\S.{0,20})?$/i.test(s)) return s;   // จอ LA PlanB มุมใกล้ / มุมไกล / 1 / 2
   if (/^(PRUDENTIAL|SATHORN)(\s*_?\s*\S.{0,30})?$/i.test(s)) return s;   // v1.81 จอ Prudential Sathorn
+  if (/^THE\s*PRIME\s*9$/i.test(s)) return s;   // v2.11 จอ The Prime 9 (PR9 · EkamaiExpressway) แท็บ PBTV_80Blue
   if (/^DUSIT(\s*_?\s*\S.{0,24})?$/i.test(s) && !/PARK\s*$/i.test(s)) return s;   // v1.78 จอ Dusit Central Park (ใบเช็คกลุ่ม 5: "Dusit Central")
   return null;
 }
@@ -3333,8 +3334,9 @@ window.__freeDbg = { F, ckBlocks, packOfSheet, planWrites };
 
 
 // ===== v1.89 NotePatch (มุมขวาบน + เด้งตอนเปิดเว็บ) =====
-const APP_VER = '2.10';
+const APP_VER = '2.11';
 const PATCH_NOTES = [
+  { v: '2.11', tab: 'A', items: ['อ่านจอ The Prime 9 (PR9 · EkamaiExpress) ในแท็บ PBTV_80Blue → ใส่รายการจากคอลัมน์ "EkamaiExpressway" ในไฟล์ 80Blue'] },
   { v: '2.10', tab: 'A', items: ['เปลี่ยนสีแถบวันที่ 16–สิ้นเดือนได้เอง (🎨 สีแถบวันที่ ข้าง "รันวันที่") · วันที่ 1–15 ยังเป็นสีฟ้า · จำไว้ในเครื่องของแต่ละคน · กด "ค่าเดิม" กลับเป็นสีม่วง', 'ใช้กับแถบวันที่ที่ใส่ใหม่ แถบเดิมในใบเช็คไม่เปลี่ยน'] },
   { v: '2.09', tab: 'B/C', items: ['รองรับ Gallery แบบ "Pic @ แพ็ค / 11 Nov 2026 1-15 / จอ" — เข้าเฉพาะโฟลเดอร์รอบของเดือนในใบเช็ค (ปีต้องตรงด้วย)', 'ใส่ใบเช็คแล้ว → เปิดดูเฉพาะโฟลเดอร์จอที่อยู่ในใบเช็ค จออื่นข้ามเลย (สแกนเร็วขึ้นมาก)', 'เพิ่ม/เปลี่ยนใบเช็คหลังเลือก Gallery → สแกนใหม่ให้เอง'] },
   { v: '2.08', tab: 'B/C', items: ['ใส่ใบเช็คแล้ว → สแกน Gallery ทุกรอบของเดือนในใบเช็ค (เช่น ใบเช็ค พ.ย. → #11 Nov 1-15 และ 16-30) ไม่ใช่แค่รอบของวันนี้ · เหมาะกับเติมคะแนนย้อนหลังให้ใบเช็คใหม่ที่ยังว่างทั้งเดือน', 'เปลี่ยนใบเช็คเป็นเดือนอื่น → สแกน Gallery ใหม่ให้เอง'] },
