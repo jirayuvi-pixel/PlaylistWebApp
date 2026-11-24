@@ -391,7 +391,7 @@ button.primary{color:var(--on-tab,#fff)}
 </head>
 <body>
 <header class="top"><div class="cells" aria-hidden="true"></div><div class="in">
-  <span class="brand">PLAN.<b>B</b> Playlist</span><span class="ep">EP.2 · v2.13</span>
+  <span class="brand">PLAN.<b>B</b> Playlist</span><span class="ep">EP.2 · v2.14</span>
   <span class="sub" id="appSub">จัดรายการสื่อออนไลน์</span>
   <nav class="apptabs" id="appTabs"><button data-app="A" class="on"><i class="dot"></i>A · จัดรายการ</button><button data-app="B"><i class="dot"></i>B · สร้างโฟลเดอร์</button><button data-app="C"><i class="dot"></i>C · เติมคะแนน</button><button data-app="D"><i class="dot"></i>D · คะแนนฟรี</button></nav>
   <button type="button" class="npbtn" id="npBtn" title="ดูว่าเวอร์ชันนี้อัพเดทอะไรใหม่">📝 NotePatch <span class="npv" id="npVer"></span></button>
@@ -2054,12 +2054,24 @@ $('btnSave').addEventListener('click', async () => {
   const btn = $('btnSave'); btn.disabled = true; err('');
   const done = [], fail = [];
   let dir = S.dest || null;
-  if (dir && !(await destPerm(dir, true))) { err('ไม่ได้รับสิทธิ์เขียนโฟลเดอร์ "' + dir.name + '" — จะดาวน์โหลดตามปกติแทน'); dir = null; }
+  // v2.14 โฟลเดอร์ปลายทาง (ไดรฟ์เครือข่าย) ไม่ตอบ → ไม่ค้าง: รอแต่ละขั้นมีเวลาจำกัด แล้วดาวน์โหลดแทน
+  const tmo = (p, ms) => { let t; return Promise.race([p, new Promise((_, rej) => { t = setTimeout(() => rej(Object.assign(new Error('TIMEOUT'), { name: 'TimeoutError' })), ms); })]).finally(() => clearTimeout(t)); };
+  let slowDest = false;
+  if (dir) {
+    btn.textContent = `กำลังตรวจโฟลเดอร์ "${dir.name}"… (ถ้า Chrome ถามสิทธิ์ ให้กดอนุญาต)`;
+    let ok = false;
+    try { ok = (await tmo(dir.queryPermission ? dir.queryPermission({ mode: 'readwrite' }) : Promise.resolve('granted'), 8000)) === 'granted' || await destPerm(dir, true); }
+    catch (e) { slowDest = true; }
+    if (!slowDest && ok) { try { await tmo((async () => { for await (const _ of dir.keys()) break; })(), 15000); } catch (e) { slowDest = true; } }
+    if (slowDest) { fail.push('โฟลเดอร์ "' + dir.name + '" ไม่ตอบ (ไดรฟ์เครือข่ายช้า/หลุด?) — ดาวน์โหลดไฟล์ให้แทนแล้ว คัดลอกไปวางทับในโฟลเดอร์เอง'); dir = null; }
+    else if (!ok) { err('ไม่ได้รับสิทธิ์เขียนโฟลเดอร์ "' + dir.name + '" — จะดาวน์โหลดตามปกติแทน'); dir = null; }
+  }
   const names = S.cks.map(c => c.book.name), reloaded = [];
   for (let k = 0; k < names.length; k++) {
     let c = S.cks.find(x => x.book.name === names[k]); if (!c) continue;
     if (dir) {                                     // v1.92 มีคนแก้ไฟล์นี้ใน Excel หลังจากใส่เข้าแอพ → ใช้ไฟล์ล่าสุด
-      const nf = await changedOnDisk(dir, names[k]);
+      btn.textContent = `กำลังเช็คไฟล์ในโฟลเดอร์ ${names[k]} (${k + 1}/${names.length})…`;
+      let nf = null; try { nf = await tmo(changedOnDisk(dir, names[k]), 15000); } catch (e) { }
       if (nf) { await setChecksheets([nf], true); S.diskSig[names[k]] = nf.lastModified; c = S.cks.find(x => x.book.name === names[k]) || c; reloaded.push(names[k]); }
     }
     btn.textContent = `กำลังทำ ${c.book.name} (${k + 1}/${names.length})…`;
@@ -2067,15 +2079,19 @@ $('btnSave').addEventListener('click', async () => {
     try { blob = (await buildFor(c)).blob; S.built[c.book.name] = blob; }
     catch (e) { fail.push(c.book.name + ': ' + e.message); continue; }
     if (dir) {
-      try { await writeToDest(dir, c.book.name, blob); done.push(c.book.name); }
-      catch (e) { fail.push(c.book.name + ': บันทึกลงโฟลเดอร์ไม่ได้ — ' + (/NoModification|InvalidState|lock/i.test(e.name + e.message) ? 'ไฟล์อาจเปิดอยู่ใน Excel ปิดไฟล์ก่อนแล้วกดใหม่' : e.message)); }
+      btn.textContent = `กำลังบันทึก ${c.book.name} ลงโฟลเดอร์ (${k + 1}/${names.length})…`;
+      try { await tmo(writeToDest(dir, c.book.name, blob), 60000); done.push(c.book.name); }
+      catch (e) {
+        if (e && e.name === 'TimeoutError') { saveBlob(blob, c.book.name); fail.push(c.book.name + ': โฟลเดอร์ไม่ตอบภายใน 1 นาที — ดาวน์โหลดไฟล์ให้แทนแล้ว (คัดลอกไปวางทับเอง)'); }
+        else { fail.push(c.book.name + ': บันทึกลงโฟลเดอร์ไม่ได้ — ' + (/NoModification|InvalidState|lock/i.test(e.name + e.message) ? 'ไฟล์อาจเปิดอยู่ใน Excel ปิดไฟล์ก่อนแล้วกดใหม่' : e.message)); }
+      }
     } else { saveBlob(blob, c.book.name); done.push(c.book.name); await new Promise(r => setTimeout(r, 400)); }
   }
   // v1.85 ใบเช็คในแอพ (หน้า A / B / C / D) = ใบที่ใส่รายการแล้ว — หน้า D จะได้นับคะแนนฟรีจากใบล่าสุด
   { const built = S.cks.filter(c => S.built[c.book.name]).map(c => [c.book.name, S.built[c.book.name]]);
     if (built.length) { await setChecksheets(built.map(([n, b]) => new File([b], n)), true); for (const [n, b] of built) S.built[n] = b; } }
   const dm = destMissingMsg();
-  if (fail.length || dm) err([fail.length ? 'ไม่สำเร็จ: ' + fail.join(' / ') : '', dm].filter(Boolean).join(' · '));
+  if (fail.length || dm) err([fail.length ? (slowDest && fail.length === 1 ? 'บันทึกลงโฟลเดอร์ไม่สำเร็จ: ' : 'ไม่สำเร็จ: ') + fail.join(' / ') : '', dm].filter(Boolean).join(' · '));
   if (reloaded.length) setTimeout(() => toast('ใช้ไฟล์ล่าสุดที่แก้ใน Excel: ' + reloaded.join(', ') + ' (ไม่บันทึกทับสิ่งที่แก้ไว้)'), 2500);
   spbInfo(); spbSync(true);
   toast(dir ? `บันทึกทับลงโฟลเดอร์ "${dir.name}" แล้ว ${done.length} ใบ (ไฟล์เดิมสำรองไว้ใน ${BACKUP_DIR})`
@@ -3347,8 +3363,9 @@ window.__freeDbg = { F, ckBlocks, packOfSheet, planWrites };
 
 
 // ===== v1.89 NotePatch (มุมขวาบน + เด้งตอนเปิดเว็บ) =====
-const APP_VER = '2.13';
+const APP_VER = '2.14';
 const PATCH_NOTES = [
+  { v: '2.14', tab: 'A', items: ['แก้ค้างที่ "กำลังบันทึกใบเช็ค…" เมื่อโฟลเดอร์ปลายทาง (ไดรฟ์เครือข่าย) ไม่ตอบ — ตรวจโฟลเดอร์ไม่เกิน 15 วินาที / บันทึกไม่เกิน 1 นาทีต่อใบ ถ้าไม่ตอบดาวน์โหลดไฟล์ให้แทน', 'ปุ่มบันทึกบอกขั้นที่กำลังทำ (ตรวจโฟลเดอร์ / เช็คไฟล์ / ทำใบเช็ค / บันทึก) พร้อมชื่อไฟล์'] },
   { v: '2.13', tab: 'A', items: ['ตอนใส่ไฟล์ บอกชื่อไฟล์ที่กำลังเปิด/อ่านอยู่จริง (เดิมค้างข้อความ "เตรียม 2 ไฟล์" ทำให้ไม่รู้ว่าติดที่ไฟล์ไหน)', 'เปิดไฟล์ไม่ได้ภายใน 30 วินาที (ไดรฟ์เครือข่ายไม่ตอบ / ไฟล์ยังไม่ได้ดาวน์โหลด) → แจ้งชื่อไฟล์และอ่านไฟล์อื่นต่อ ไม่ค้าง'] },
   { v: '2.12', tab: 'A', items: ['แก้ค้างที่ "กำลังอ่าน … (2/2)" ตอนใส่ใบเช็ค — เกิดเมื่อโฟลเดอร์ "บันทึกไปที่" (ไดรฟ์เครือข่าย) ตอบช้า ตอนนี้รอสูงสุด 3 วินาทีแล้วอ่านต่อ'] },
   { v: '2.11', tab: 'A', items: ['อ่านจอ The Prime 9 (PR9 · EkamaiExpress) ในแท็บ PBTV_80Blue → ใส่รายการจากคอลัมน์ "EkamaiExpressway" ในไฟล์ 80Blue'] },
