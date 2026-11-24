@@ -391,7 +391,7 @@ button.primary{color:var(--on-tab,#fff)}
 </head>
 <body>
 <header class="top"><div class="cells" aria-hidden="true"></div><div class="in">
-  <span class="brand">PLAN.<b>B</b> Playlist</span><span class="ep">EP.2 · v2.11</span>
+  <span class="brand">PLAN.<b>B</b> Playlist</span><span class="ep">EP.2 · v2.12</span>
   <span class="sub" id="appSub">จัดรายการสื่อออนไลน์</span>
   <nav class="apptabs" id="appTabs"><button data-app="A" class="on"><i class="dot"></i>A · จัดรายการ</button><button data-app="B"><i class="dot"></i>B · สร้างโฟลเดอร์</button><button data-app="C"><i class="dot"></i>C · เติมคะแนน</button><button data-app="D"><i class="dot"></i>D · คะแนนฟรี</button></nav>
   <button type="button" class="npbtn" id="npBtn" title="ดูว่าเวอร์ชันนี้อัพเดทอะไรใหม่">📝 NotePatch <span class="npv" id="npVer"></span></button>
@@ -2272,10 +2272,18 @@ async function destPerm(h, ask) {
 //  ถ้าตอนจะบันทึก ไฟล์ในโฟลเดอร์ใหม่กว่า (มีคนแก้ใน Excel หลังจากนั้น) → ใช้ไฟล์ล่าสุดในโฟลเดอร์แทนของในแอพ
 S.diskSig = {};
 async function diskFileOf(dir, name) { try { return await (await dir.getFileHandle(name)).getFile(); } catch (e) { return null; } }
+// v2.12 โฟลเดอร์ปลายทางอยู่บนไดรฟ์เครือข่าย (เช่น X:) ที่ตอบช้า/หลุด → เดิมรอไม่จบ ค้างที่ "กำลังอ่าน … (2/2)"
+//  ตอนนี้รอสูงสุด 3 วินาที ถ้าไม่ตอบก็ข้ามไป (แค่ไม่ได้เช็กว่าไฟล์ถูกแก้ใน Excel ระหว่างนั้น)
+function withTimeout(p, ms) { let t; return Promise.race([p, new Promise(res => { t = setTimeout(() => res(undefined), ms); })]).finally(() => clearTimeout(t)); }
 async function markSameAsDisk(f) {             // ไฟล์ที่ใส่เข้าแอพคือไฟล์เดียวกับในโฟลเดอร์ปลายทาง → เริ่มติดตาม
-  const dir = S.dest; if (!dir || !f || !f.name || !(await destPerm(dir, false))) return;
-  const d = await diskFileOf(dir, f.name);
-  if (d && d.size === f.size && Math.abs(d.lastModified - f.lastModified) < 1500) S.diskSig[f.name] = d.lastModified;
+  const dir = S.dest; if (!dir || !f || !f.name) return;
+  try {
+    await withTimeout((async () => {
+      if (!(await destPerm(dir, false))) return;
+      const d = await diskFileOf(dir, f.name);
+      if (d && d.size === f.size && Math.abs(d.lastModified - f.lastModified) < 1500) S.diskSig[f.name] = d.lastModified;
+    })(), 3000);
+  } catch (e) { }
 }
 async function changedOnDisk(dir, name) {        // คืนไฟล์ล่าสุด ถ้าในโฟลเดอร์ถูกแก้หลังจากที่แอพรู้จักครั้งล่าสุด
   const known = S.diskSig[name]; if (!dir || !known) return null;
@@ -3334,8 +3342,9 @@ window.__freeDbg = { F, ckBlocks, packOfSheet, planWrites };
 
 
 // ===== v1.89 NotePatch (มุมขวาบน + เด้งตอนเปิดเว็บ) =====
-const APP_VER = '2.11';
+const APP_VER = '2.12';
 const PATCH_NOTES = [
+  { v: '2.12', tab: 'A', items: ['แก้ค้างที่ "กำลังอ่าน … (2/2)" ตอนใส่ใบเช็ค — เกิดเมื่อโฟลเดอร์ "บันทึกไปที่" (ไดรฟ์เครือข่าย) ตอบช้า ตอนนี้รอสูงสุด 3 วินาทีแล้วอ่านต่อ'] },
   { v: '2.11', tab: 'A', items: ['อ่านจอ The Prime 9 (PR9 · EkamaiExpress) ในแท็บ PBTV_80Blue → ใส่รายการจากคอลัมน์ "EkamaiExpressway" ในไฟล์ 80Blue'] },
   { v: '2.10', tab: 'A', items: ['เปลี่ยนสีแถบวันที่ 16–สิ้นเดือนได้เอง (🎨 สีแถบวันที่ ข้าง "รันวันที่") · วันที่ 1–15 ยังเป็นสีฟ้า · จำไว้ในเครื่องของแต่ละคน · กด "ค่าเดิม" กลับเป็นสีม่วง', 'ใช้กับแถบวันที่ที่ใส่ใหม่ แถบเดิมในใบเช็คไม่เปลี่ยน'] },
   { v: '2.09', tab: 'B/C', items: ['รองรับ Gallery แบบ "Pic @ แพ็ค / 11 Nov 2026 1-15 / จอ" — เข้าเฉพาะโฟลเดอร์รอบของเดือนในใบเช็ค (ปีต้องตรงด้วย)', 'ใส่ใบเช็คแล้ว → เปิดดูเฉพาะโฟลเดอร์จอที่อยู่ในใบเช็ค จออื่นข้ามเลย (สแกนเร็วขึ้นมาก)', 'เพิ่ม/เปลี่ยนใบเช็คหลังเลือก Gallery → สแกนใหม่ให้เอง'] },
