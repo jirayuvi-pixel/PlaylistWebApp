@@ -391,7 +391,7 @@ button.primary{color:var(--on-tab,#fff)}
 </head>
 <body>
 <header class="top"><div class="cells" aria-hidden="true"></div><div class="in">
-  <span class="brand">PLAN.<b>B</b> Playlist</span><span class="ep">EP.2 · v2.12</span>
+  <span class="brand">PLAN.<b>B</b> Playlist</span><span class="ep">EP.2 · v2.13</span>
   <span class="sub" id="appSub">จัดรายการสื่อออนไลน์</span>
   <nav class="apptabs" id="appTabs"><button data-app="A" class="on"><i class="dot"></i>A · จัดรายการ</button><button data-app="B"><i class="dot"></i>B · สร้างโฟลเดอร์</button><button data-app="C"><i class="dot"></i>C · เติมคะแนน</button><button data-app="D"><i class="dot"></i>D · คะแนนฟรี</button></nav>
   <button type="button" class="npbtn" id="npBtn" title="ดูว่าเวอร์ชันนี้อัพเดทอะไรใหม่">📝 NotePatch <span class="npv" id="npVer"></span></button>
@@ -1740,7 +1740,7 @@ async function addSources(files) {
   for (const f of files) {
     try {
       S.srcBooks = S.srcBooks.filter(b => b.name !== f.name);
-      const b = await readBook(await f.arrayBuffer(), f.name);
+      const b = await readBook(await fileBuf(f), f.name);
       b.path = f.relPath || f.webkitRelativePath || '';     // เลือกทั้งโฟลเดอร์: ใช้ชื่อโฟลเดอร์ช่วยหาวันที่
       b.sources = await detectSources(b);
       S.srcBooks.push(b);
@@ -1767,7 +1767,7 @@ async function setChecksheets(files, fromB) {
   files = files.filter(okFile);
   for (const f of files) {
     try {
-      const buf = await f.arrayBuffer();
+      const buf = await fileBuf(f);
       const book = await readBook(buf.slice(0), f.name); book.orig = buf; book.mtime = f.lastModified;
       await markSameAsDisk(f);
       const sheets = await parseChecksheet(book);
@@ -2155,7 +2155,7 @@ async function addAny(files) {
   const src = [], ck = [];
   for (const f of files) {
     try {
-      const book = await readBook(await f.arrayBuffer(), f.name);
+      const book = await readBook(await fileBuf(f), f.name);
       if ((await detectSources(book)).length) src.push(f);
       else if ((await parseChecksheet(book)).length) ck.push(f);
       else err(f.name + ': ไม่ใช่ไฟล์รายการหนังหรือใบเช็ครูป');
@@ -2274,6 +2274,11 @@ S.diskSig = {};
 async function diskFileOf(dir, name) { try { return await (await dir.getFileHandle(name)).getFile(); } catch (e) { return null; } }
 // v2.12 โฟลเดอร์ปลายทางอยู่บนไดรฟ์เครือข่าย (เช่น X:) ที่ตอบช้า/หลุด → เดิมรอไม่จบ ค้างที่ "กำลังอ่าน … (2/2)"
 //  ตอนนี้รอสูงสุด 3 วินาที ถ้าไม่ตอบก็ข้ามไป (แค่ไม่ได้เช็กว่าไฟล์ถูกแก้ใน Excel ระหว่างนั้น)
+// v2.13 เปิดไฟล์ (อ่านข้อมูลไฟล์) ไม่เกิน 30 วินาที — ไฟล์บนไดรฟ์เครือข่ายที่ไม่ตอบ / ไฟล์ OneDrive ที่ยังไม่ได้โหลด จะไม่ค้างตลอดไป
+function fileBuf(f, ms = 30000) {
+  const L = window.__UI && window.__UI.load; if (L) { L.msg = `กำลังเปิดไฟล์ ${f.name}`; $('ldText').textContent = L.msg; }
+  let t; return Promise.race([f.arrayBuffer(), new Promise((_, rej) => { t = setTimeout(() => rej(new Error('เปิดไฟล์ไม่ได้ภายใน 30 วินาที — ไฟล์อยู่บนไดรฟ์เครือข่ายที่ไม่ตอบ หรือไฟล์ยังไม่ได้ดาวน์โหลด (OneDrive/Google Drive) · ลองคัดลอกไฟล์มาไว้ในเครื่องแล้วใส่ใหม่')), ms); })]).finally(() => clearTimeout(t));
+}
 function withTimeout(p, ms) { let t; return Promise.race([p, new Promise(res => { t = setTimeout(() => res(undefined), ms); })]).finally(() => clearTimeout(t)); }
 async function markSameAsDisk(f) {             // ไฟล์ที่ใส่เข้าแอพคือไฟล์เดียวกับในโฟลเดอร์ปลายทาง → เริ่มติดตาม
   const dir = S.dest; if (!dir || !f || !f.name) return;
@@ -2457,7 +2462,7 @@ function mascot(mood,size){
   <path class="nose" d="M48.2 58 L51.8 58 L50 60.2 Z"/>
   ${face}</svg>`;
 }
-const UI = { done: { A: false, B: false, C: false }, load: null, saving: null };
+const UI = { done: { A: false, B: false, C: false }, load: null, saving: null }; window.__UI = UI;
 const MLS = 'ep2.mascot';
 const GROUPS = [[/40\s*blue/i, 'g40b', '40Blue'], [/40\s*red/i, 'g40r', '40Red'], [/80\s*blue/i, 'g80b', '80Blue'], [/80\s*red/i, 'g80r', '80Red'],
   [/spare/i, 'gspare', 'Spare'], [/la\s*plan/i, 'gla', 'LA'], [/dusit|show\s*dc/i, 'gdc', 'Show DC'], [/metro/i, 'gmetro', 'Metro'], [/bkj|jam\s*\d/i, 'gbkj', 'BKJ'], [/city/i, 'gcity', 'CITY']];
@@ -2510,7 +2515,7 @@ $('mascOn').addEventListener('change', e => { document.body.classList.toggle('no
 const _readBook = readBook;
 readBook = async function (buf, name) {
   const L = UI.load;
-  if (L) { L.n++; $('ldText').textContent = `กำลังอ่าน ${name}` + (L.total ? ` (${Math.min(L.n, L.total)}/${L.total})` : ''); }
+  if (L) { L.n++; L.msg = `กำลังอ่าน ${name}` + (L.total ? ` (${Math.min(L.n, L.total)}/${L.total})` : ''); $('ldText').textContent = L.msg; }
   return _readBook.apply(this, arguments);
 };
 function showLoader(title, text) {
@@ -2520,7 +2525,7 @@ function showLoader(title, text) {
 function hideLoader() { $('ldCard').hidden = true; }
 async function withLoad(total, fn) {
   if (UI.load) return fn();
-  UI.load = { n: 0, total }; const tm = setTimeout(() => { document.body.classList.add('loadingA'); showLoader('กำลังอ่านไฟล์…', `เตรียม ${total} ไฟล์`); }, 150);
+  UI.load = { n: 0, total }; const tm = setTimeout(() => { document.body.classList.add('loadingA'); showLoader('กำลังอ่านไฟล์…', UI.load && UI.load.msg || `เตรียม ${total} ไฟล์`); }, 150);   // v2.13 ไม่ทับข้อความความคืบหน้าที่ขึ้นไปแล้ว
   try { return await fn(); } finally { clearTimeout(tm); UI.load = null; hideLoader(); document.body.classList.remove('loadingA'); updateEmpty(); }
 }
 const _addSources = addSources, _setChecksheets = setChecksheets, _addAny = addAny;
@@ -3342,8 +3347,9 @@ window.__freeDbg = { F, ckBlocks, packOfSheet, planWrites };
 
 
 // ===== v1.89 NotePatch (มุมขวาบน + เด้งตอนเปิดเว็บ) =====
-const APP_VER = '2.12';
+const APP_VER = '2.13';
 const PATCH_NOTES = [
+  { v: '2.13', tab: 'A', items: ['ตอนใส่ไฟล์ บอกชื่อไฟล์ที่กำลังเปิด/อ่านอยู่จริง (เดิมค้างข้อความ "เตรียม 2 ไฟล์" ทำให้ไม่รู้ว่าติดที่ไฟล์ไหน)', 'เปิดไฟล์ไม่ได้ภายใน 30 วินาที (ไดรฟ์เครือข่ายไม่ตอบ / ไฟล์ยังไม่ได้ดาวน์โหลด) → แจ้งชื่อไฟล์และอ่านไฟล์อื่นต่อ ไม่ค้าง'] },
   { v: '2.12', tab: 'A', items: ['แก้ค้างที่ "กำลังอ่าน … (2/2)" ตอนใส่ใบเช็ค — เกิดเมื่อโฟลเดอร์ "บันทึกไปที่" (ไดรฟ์เครือข่าย) ตอบช้า ตอนนี้รอสูงสุด 3 วินาทีแล้วอ่านต่อ'] },
   { v: '2.11', tab: 'A', items: ['อ่านจอ The Prime 9 (PR9 · EkamaiExpress) ในแท็บ PBTV_80Blue → ใส่รายการจากคอลัมน์ "EkamaiExpressway" ในไฟล์ 80Blue'] },
   { v: '2.10', tab: 'A', items: ['เปลี่ยนสีแถบวันที่ 16–สิ้นเดือนได้เอง (🎨 สีแถบวันที่ ข้าง "รันวันที่") · วันที่ 1–15 ยังเป็นสีฟ้า · จำไว้ในเครื่องของแต่ละคน · กด "ค่าเดิม" กลับเป็นสีม่วง', 'ใช้กับแถบวันที่ที่ใส่ใหม่ แถบเดิมในใบเช็คไม่เปลี่ยน'] },
