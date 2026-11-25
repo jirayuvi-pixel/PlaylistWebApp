@@ -391,7 +391,7 @@ button.primary{color:var(--on-tab,#fff)}
 </head>
 <body>
 <header class="top"><div class="cells" aria-hidden="true"></div><div class="in">
-  <span class="brand">PLAN.<b>B</b> Playlist</span><span class="ep">EP.2 · v2.16</span>
+  <span class="brand">PLAN.<b>B</b> Playlist</span><span class="ep">EP.2 · v2.17</span>
   <span class="sub" id="appSub">จัดรายการสื่อออนไลน์</span>
   <nav class="apptabs" id="appTabs"><button data-app="A" class="on"><i class="dot"></i>A · จัดรายการ</button><button data-app="B"><i class="dot"></i>B · สร้างโฟลเดอร์</button><button data-app="C"><i class="dot"></i>C · เติมคะแนน</button><button data-app="D"><i class="dot"></i>D · คะแนนฟรี</button></nav>
   <button type="button" class="npbtn" id="npBtn" title="ดูว่าเวอร์ชันนี้อัพเดทอะไรใหม่">📝 NotePatch <span class="npv" id="npVer"></span></button>
@@ -729,7 +729,7 @@ async function detectSources(book) {
           if (!nmv || typeof raw === 'number' || nmv === 'หนังโฆษณา') continue;
           const st = str(cell(rows, rr, c + 4)); if (st === 'ถอด') continue;
           if (ci >= 0 && isFreeze(cell(rows, rr, ci))) { book.freeze.add(nmv); continue; }
-          items.push({ name: nmv, isNew: isNewMark(st, rows.fill[rr] && rows.fill[rr][c]) });
+          items.push({ name: nmv, isNew: isNewMark(st, rows.fill[rr] && rows.fill[rr][c]), note: ci >= 0 ? str(cell(rows, rr, ci)) : '' });
         }
         out.push({ id: book.name + '|' + sh.name + '|' + key, kind: 'block', file: book.name, sheet: sh.name, key, nkey: norm(key), items });
         blocks++;
@@ -948,7 +948,8 @@ async function parseChecksheet(book) {
         if (dset.has(r)) { secDate = (sectionDates.find(x => x.r === r) || {}).date; continue; }
         const nm = str(cell(rows, r, b.nameCol)); if (!nm) continue;
         { const ot = str(cell(rows, r, b.dateCol)), om = /ออก\s*(\d{1,2})/.exec(ot);
-          b.rowsInfo.push({ r, name: nm, date: secDate, out: /ออก/.test(ot), outDay: om ? +om[1] : null }); }
+          let scored = false; for (let cc = b.nameCol + 1; cc <= b.endCol; cc++) { const v = cell(rows, r, cc); if (v !== null && v !== undefined && String(v).trim() !== '') { scored = true; break; } }
+          b.rowsInfo.push({ r, name: nm, date: secDate, out: /ออก/.test(ot), outDay: om ? +om[1] : null, scored }); }
       }
     }
     if (!blocks.some(b => b.codes.length)) continue;           // ไม่มีรหัสจอ = ไม่ใช่ชีทใบเช็ค
@@ -1134,7 +1135,7 @@ function entriesFor(sheet, block, src, family) {
 const bare = n => n.replace(/^#/, '');
 // one run = one date. mode 'day1': all films; mode 'append': only new films (ขึ้นใหม่ / ขึ้นใหม่ไฟล์เดิม / ต่อสัญญา + ขึ้นใหม่ไฟล์เดิม / เหลือง)
 function resolveBlock(sheet, block, source, family, keep, runDate, mode) {
-  let notHere = [];
+  let notHere = [], noteOff = [], entriesAll = null;
   if (!source) return { items: [], warn: 'ไม่พบไฟล์รายการหนังของจอนี้' };
   let entries, warn = null;
   if (source.kind === 'daily') {
@@ -1151,13 +1152,24 @@ function resolveBlock(sheet, block, source, family, keep, runDate, mode) {
     }
   } else {
     const r = entriesFor(sheet, block, source, family); entries = r.entries; warn = r.warn || null;
+    // v2.17 ข้อมูลการออน "ไม่ออน / ห้ามออน / ยกเว้น …" ที่มีรหัสจอนี้ → ไม่ใส่ (และลบออกจากใบเช็คถ้ายังไม่มีคะแนน)
+    if (source.kind === 'block') {
+      const mine = new Set((block.codes || []).filter(c => /^(DGT|ID)/i.test(String(c))).map(norm));
+      const offHere = x => { if (!mine.size || !x.note) return false;
+        for (const q of String(x.note).matchAll(/(ไม่ออน(?:จอ)?|ห้ามออน|ยกเว้น)([\s\S]*?)(?=ออน|เฉพาะ|\/\/|\*|$)/g))
+          for (const c of q[2].match(/(?:DGT|ID)\s*-?\s*A?\s*-?\s*\d+(?:\s*-\s*[AB](?![A-Za-z]))?/gi) || []) if (mine.has(norm(c))) return true;
+        return false; };
+      const okName = new Set(entries.filter(x => !offHere(x)).map(x => x.name));
+      noteOff = [...new Set(entries.filter(x => !okName.has(x.name)).map(x => x.name))];
+      if (noteOff.length) { entriesAll = entries; entries = entries.filter(x => okName.has(x.name)); warn = [warn, `ไม่ใส่ตามข้อมูลการออน (ไม่ออน/ยกเว้นจอนี้) ${noteOff.length} เรื่อง: ${noteOff.join(', ')}`].filter(Boolean).join(' · '); }
+    }
     if (source.date && runDate && ymd(source.date) !== ymd(runDate)) {
       if (mode === 'append') return { items: [], warn: 'ไม่มีไฟล์ของวันที่ ' + ymd(runDate) + ' (ข้ามจอนี้)', noSource: true };
       warn = 'ไฟล์นี้เป็นของวันที่ ' + ymd(source.date);
     }
   }
   // v1.91 จอที่ยังว่างทั้งคอลัมน์ (เพิ่งเพิ่ม / ย้ายเข้ามา) → ใส่รายการเต็มของวันนั้น
-  if (mode !== 'append' || (!(block.rowsInfo || []).length && !block.hasHistory)) return { items: finalize(entries.map(x => x.name), keep).map(mark).sort(bySort), warn: mode === 'append' ? 'จอใหม่ (ยังว่าง) — ใส่รายการเต็มของวันนี้' : warn, notHere };
+  if (mode !== 'append' || (!(block.rowsInfo || []).length && !block.hasHistory)) return { items: finalize(entries.map(x => x.name), keep).map(mark).sort(bySort), warn: mode === 'append' ? 'จอใหม่ (ยังว่าง) — ใส่รายการเต็มของวันนี้' : warn, notHere , noteOff};
   // append: skip films already listed in this half of the month (1–15 / 16–end)
   const w = windowOf(runDate);
   // v1.95 หนังที่ "ออก" ไปแล้วแต่กลับมาออนอีก (ขึ้นใหม่ / ขึ้นใหม่ไฟล์เดิม) → ใส่ใหม่ในวันที่กลับมา
@@ -1176,10 +1188,11 @@ function resolveBlock(sheet, block, source, family, keep, runDate, mode) {
   const missedSet = new Set(finalize(missed, keep));
   // v2.16 หนังตกหล่น → แทรกใต้วันที่ตามชื่อ (เช่น _24Nov26_ → วันที่ 24) · ใบเช็คไม่มีแถววันที่นั้น → วันที่ก่อนหน้าที่ใกล้ที่สุดในรอบเดียวกัน
   const secList = [...(sheet.date ? [{ date: sheet.date }] : []), ...(sheet.sectionDates || [])].filter(x => x.date);
-  const late = [];
+  const late = [], lateAll = [];
   for (const n of missedSet) {
     const nd = nameDate(n); const tgt = secList.filter(x => windowOf(x.date) === w && x.date <= nd).sort((a, b) => b.date - a.date)[0];
     if (tgt && ymd(tgt.date) !== ymd(runDate) && tgt.date < runDate) late.push({ name: mark(n), date: tgt.date });
+    lateAll.push({ name: mark(n), date: tgt && tgt.date < runDate ? tgt.date : runDate });
   }
   const lateSet = new Set(late.map(x => bare(x.name)));
   if (missedSet.size) warn = [warn, `หนังที่ไม่มีป้ายขึ้นใหม่แต่ยังไม่มีในใบเช็ค (น่าจะตกหล่นจากวันก่อน) ${missedSet.size} เรื่อง: ` + [...missedSet].map(n => { const l = late.find(x => bare(x.name) === n); return l ? `${n} → แทรกใต้วันที่ ${fmtDate(l.date)}` : n; }).join(', ')].filter(Boolean).join(' · ');
@@ -1188,14 +1201,14 @@ function resolveBlock(sheet, block, source, family, keep, runDate, mode) {
   const items = fresh.filter(n => !outRow.has(n)).map(mark).sort(bySort);
   const itemsAll = fresh.map(mark).sort(bySort);         // ใช้แทนเมื่อแทรกวันย้อนหลัง (ไม่ลบ "ออก" ย้อนหลัง)
   // ออก N: films in the sheet (not yet marked) that are no longer in today's list
-  const today = new Set(entries.map(x => x.name));
+  const today = new Set((entriesAll || entries).map(x => x.name));   // v2.17 หนังที่ตัดตามข้อมูลการออน ไม่นับว่า "ออก"
   let outs = (block.rowsInfo || []).filter(x => !x.out && !today.has(bare(x.name)) && keep(bare(x.name)));
   const active = (block.rowsInfo || []).filter(x => !x.out && keep(bare(x.name))).length;
   if (outs.length > 5 && outs.length > active * 0.5) {
     warn = `ไฟล์ของวันนี้ไม่มีหนัง ${outs.length} จาก ${active} เรื่องที่อยู่ในใบเช็ค ดูแล้วผิดปกติ จึงไม่ใส่ "ออก" ให้ ตรวจไฟล์ก่อน`;
     outs = [];
   }
-  return { items, outs, warn, backs, itemsAll, notHere, late };
+  return { items, outs, warn, backs, itemsAll, notHere, late, lateAll, noteOff };
 }
 
 /* ---------- writer (.xlsm/.xlsx, keeps macros & formatting) ---------- */
@@ -1930,16 +1943,19 @@ function computePlan(runOverride, sheetsOverride) {
         const hasDate = !!(fillAt && dayFilled(b, run));
         // v2.02 จอที่ย้ายมาจากแท็บอื่น (คอลัมน์ยังว่าง แต่แท็บเดิมมีรายการ) = ไม่ใช่จอใหม่ → ใช้กฎปกติ (เฉพาะขึ้นใหม่ / ขึ้นใหม่ไฟล์เดิม / เหลือง)
         const hasHistory = !(b.rowsInfo || []).length && b.codes.length && (sheetsOverride || S.ckSheets).some(o => o.name !== sh.name && o.blocks.some(x => (x.rowsInfo || []).length && x.codes.some(c => b.codes.some(d => norm(c) === norm(d)))));
-        const r = (mode === 'skip' || hasDate) ? { items: [], warn: hasDate ? 'จอนี้มีวันที่นี้แล้ว' : '' } : resolveBlock(sh, hasHistory ? { ...b, hasHistory: true } : b, src, fam, keep, date, mode);
+        let r = mode === 'skip' ? { items: [], warn: '' } : resolveBlock(sh, hasHistory ? { ...b, hasHistory: true } : b, src, fam, keep, date, mode);
+        if (hasDate) r = { items: [], warn: ['จอนี้มีวันที่นี้แล้ว', (r.lateAll || []).length ? 'หนังตกหล่น: ' + r.lateAll.map(x => x.name + ' → วันที่ ' + fmtDate(x.date)).join(', ') : '', (r.noteOff || []).length ? 'ไม่ออนจอนี้ตามข้อมูลการออน: ' + r.noteOff.join(', ') : ''].filter(Boolean).join(' · '), late: r.lateAll || [], noteOff: r.noteOff || [], notHere: r.notHere || [] };   // v2.17
         const DR = new Set((src && src.drop) || []);       // v1.83 Dusit: รายการพื้นแดง/ดำ ที่อยู่ในใบเช็คแล้ว → ลบออก
         for (const n of r.notHere || []) DR.add(n);          // v2.00 Metro Tags: หนังของจออื่นที่อยู่ในใบเช็คจอนี้ → ลบออก
-        const fzRows = (FZ.size || DR.size) ? (b.rowsInfo || []).filter(x => FZ.has(bare(x.name)) || DR.has(bare(x.name))) : [];
+        const NO = new Set(r.noteOff || []);              // v2.17 ไม่ออนจอนี้ตามข้อมูลการออน → ลบแถวที่ยังไม่มีคะแนน
+        const fzRows = (FZ.size || DR.size || NO.size) ? (b.rowsInfo || []).filter(x => FZ.has(bare(x.name)) || DR.has(bare(x.name)) || (NO.has(bare(x.name)) && !x.scored)) : [];
+        { const keptNO = (b.rowsInfo || []).filter(x => NO.has(bare(x.name)) && x.scored); if (keptNO.length) r.warn = [r.warn, `มีคะแนนแล้ว ไม่ลบ (ตรวจเอง): ${keptNO.map(x => x.name).join(', ')}`].filter(Boolean).join(' · '); }
         const fzSet = new Set(fzRows.map(x => x.r));
         const outs = ((insertAt || fillPast || topUp) ? [] : (r.outs || [])).filter(o => !fzSet.has(o.r));
         const past = !!(insertAt || fillPast);              // วันย้อนหลัง: ไม่ลบ "ออก" → ใส่เป็นแถวใหม่แทน
         const backs = past ? [] : (r.backs || []).filter(o => !fzSet.has(o.r));
         const items = past && r.itemsAll ? r.itemsAll : r.items;
-        return { ...b, key, source: r.noSource ? null : src, auto: am.source, items, outs, backs, warn: r.warn, hasDate, fzRows, late: past ? [] : (r.late || []) };
+        return { ...b, key, source: r.noSource ? null : src, auto: am.source, items, outs, backs, warn: r.warn, hasDate, fzRows, late: past && !hasDate ? [] : (r.late || []) };
       })
     };
     if (topUp && !sp.blocks.some(b => b.items.length || b.backs.length)) {   // ไม่มีหนังใหม่ระหว่างวัน → ข้ามเหมือนเดิม
@@ -3402,8 +3418,9 @@ window.__freeDbg = { F, ckBlocks, packOfSheet, planWrites };
 
 
 // ===== v1.89 NotePatch (มุมขวาบน + เด้งตอนเปิดเว็บ) =====
-const APP_VER = '2.16';
+const APP_VER = '2.17';
 const PATCH_NOTES = [
+  { v: '2.17', tab: 'A', items: ['อ่านข้อมูลการออนของแต่ละหนัง: "ไม่ออน / ห้ามออน / ยกเว้น …" ที่มีรหัสจอนี้ → ไม่ใส่ และลบออกจากใบเช็คถ้ายังไม่มีคะแนน (มีคะแนนแล้วแจ้งให้ตรวจเอง) — เช่น Finnomena V1/V2/V3 ที่จอ DGT260', 'หนังตกหล่นแทรกให้จอที่มีวันที่นั้นแล้วด้วย (เดิมข้ามทั้งจอ เช่น DGT-A1006 / DGT-A1008)', 'หนังที่มีคะแนนแล้วแต่ข้อมูลการออนบอกไม่ออนจอนี้ → ไม่ลบ ไม่ใส่ "ออก" แจ้งให้ตรวจเอง'] },
   { v: '2.16', tab: 'A', items: ['หนังตกหล่น (ไม่มีป้ายขึ้นใหม่ แต่ยังไม่มีในใบเช็ค) → แทรกใต้วันที่ตามชื่อหนัง เช่น Finnomena_V3_24Nov26 → ใต้วันที่ 24 · เรียงตัวอักษรในวันนั้น (คะแนน/ออก ย้ายตามแถว)', 'ใบเช็คไม่มีแถววันที่นั้น → แทรกใต้วันที่ก่อนหน้าที่ใกล้ที่สุดในรอบเดียวกัน · หนังที่วันที่ในชื่อตรงกับวันที่รัน ใส่ตามปกติ'] },
   { v: '2.15', tab: 'A', items: ['กันตกหล่น: หนังที่ไฟล์ไม่ใส่ป้าย "ขึ้นใหม่"/ไฮไลท์ แต่วันที่ในชื่ออยู่ในรอบนี้ (เช่น Finnomena_V3_24Nov26) และยังไม่มีในใบเช็คเลย → ใส่ให้ พร้อมแจ้งเตือนที่จอนั้น'] },
   { v: '2.14', tab: 'A', items: ['แก้ค้างที่ "กำลังบันทึกใบเช็ค…" เมื่อโฟลเดอร์ปลายทาง (ไดรฟ์เครือข่าย) ไม่ตอบ — ตรวจโฟลเดอร์ไม่เกิน 15 วินาที / บันทึกไม่เกิน 1 นาทีต่อใบ ถ้าไม่ตอบดาวน์โหลดไฟล์ให้แทน', 'ปุ่มบันทึกบอกขั้นที่กำลังทำ (ตรวจโฟลเดอร์ / เช็คไฟล์ / ทำใบเช็ค / บันทึก) พร้อมชื่อไฟล์'] },
