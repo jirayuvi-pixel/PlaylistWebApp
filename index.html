@@ -391,7 +391,7 @@ button.primary{color:var(--on-tab,#fff)}
 </head>
 <body>
 <header class="top"><div class="cells" aria-hidden="true"></div><div class="in">
-  <span class="brand">PLAN.<b>B</b> Playlist</span><span class="ep">EP.2 · v2.15</span>
+  <span class="brand">PLAN.<b>B</b> Playlist</span><span class="ep">EP.2 · v2.16</span>
   <span class="sub" id="appSub">จัดรายการสื่อออนไลน์</span>
   <nav class="apptabs" id="appTabs"><button data-app="A" class="on"><i class="dot"></i>A · จัดรายการ</button><button data-app="B"><i class="dot"></i>B · สร้างโฟลเดอร์</button><button data-app="C"><i class="dot"></i>C · เติมคะแนน</button><button data-app="D"><i class="dot"></i>D · คะแนนฟรี</button></nav>
   <button type="button" class="npbtn" id="npBtn" title="ดูว่าเวอร์ชันนี้อัพเดทอะไรใหม่">📝 NotePatch <span class="npv" id="npVer"></span></button>
@@ -1174,8 +1174,16 @@ function resolveBlock(sheet, block, source, family, keep, runDate, mode) {
   const nameDate = n => { const q = /(?:^|_)(\d{1,2})(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)(\d{2})(?=_|$)/i.exec(n); return q ? new Date(Date.UTC(2000 + +q[3], MON3[q[2].toLowerCase()], +q[1])) : null; };
   const missed = runDate ? entries.filter(x => { if (x.isNew || everIn.has(bare(x.name))) return false; const d = nameDate(x.name); return d && windowOf(d) === w && d <= runDate; }).map(x => x.name) : [];
   const missedSet = new Set(finalize(missed, keep));
-  if (missedSet.size) warn = [warn, `ใส่หนังที่ไม่มีป้ายขึ้นใหม่ ${missedSet.size} เรื่อง (วันที่ในชื่ออยู่รอบนี้ แต่ยังไม่มีในใบเช็ค — น่าจะตกหล่นจากวันก่อน): ${[...missedSet].join(', ')}`].filter(Boolean).join(' · ');
-  const fresh = finalize(entries.filter(x => x.isNew || missedSet.has(x.name)).map(x => x.name), keep).filter(n => !already.has(n));
+  // v2.16 หนังตกหล่น → แทรกใต้วันที่ตามชื่อ (เช่น _24Nov26_ → วันที่ 24) · ใบเช็คไม่มีแถววันที่นั้น → วันที่ก่อนหน้าที่ใกล้ที่สุดในรอบเดียวกัน
+  const secList = [...(sheet.date ? [{ date: sheet.date }] : []), ...(sheet.sectionDates || [])].filter(x => x.date);
+  const late = [];
+  for (const n of missedSet) {
+    const nd = nameDate(n); const tgt = secList.filter(x => windowOf(x.date) === w && x.date <= nd).sort((a, b) => b.date - a.date)[0];
+    if (tgt && ymd(tgt.date) !== ymd(runDate) && tgt.date < runDate) late.push({ name: mark(n), date: tgt.date });
+  }
+  const lateSet = new Set(late.map(x => bare(x.name)));
+  if (missedSet.size) warn = [warn, `หนังที่ไม่มีป้ายขึ้นใหม่แต่ยังไม่มีในใบเช็ค (น่าจะตกหล่นจากวันก่อน) ${missedSet.size} เรื่อง: ` + [...missedSet].map(n => { const l = late.find(x => bare(x.name) === n); return l ? `${n} → แทรกใต้วันที่ ${fmtDate(l.date)}` : n; }).join(', ')].filter(Boolean).join(' · ');
+  const fresh = finalize(entries.filter(x => x.isNew || (missedSet.has(x.name) && !lateSet.has(x.name))).map(x => x.name), keep).filter(n => !already.has(n));
   const backs = fresh.filter(n => outRow.has(n)).map(n => ({ r: outRow.get(n).r, name: outRow.get(n).name }));
   const items = fresh.filter(n => !outRow.has(n)).map(mark).sort(bySort);
   const itemsAll = fresh.map(mark).sort(bySort);         // ใช้แทนเมื่อแทรกวันย้อนหลัง (ไม่ลบ "ออก" ย้อนหลัง)
@@ -1187,7 +1195,7 @@ function resolveBlock(sheet, block, source, family, keep, runDate, mode) {
     warn = `ไฟล์ของวันนี้ไม่มีหนัง ${outs.length} จาก ${active} เรื่องที่อยู่ในใบเช็ค ดูแล้วผิดปกติ จึงไม่ใส่ "ออก" ให้ ตรวจไฟล์ก่อน`;
     outs = [];
   }
-  return { items, outs, warn, backs, itemsAll, notHere };
+  return { items, outs, warn, backs, itemsAll, notHere, late };
 }
 
 /* ---------- writer (.xlsm/.xlsx, keeps macros & formatting) ---------- */
@@ -1870,7 +1878,14 @@ function computePlan(runOverride, sheetsOverride) {
     let mode = 'day1', note = '', insertAt = null, fillAt = null, fillH = 0, fillPast = false, topUp = null;
     const secs = sh.sectionDates || [];
     const hasFilms = sh.blocks.some(b => (b.rowsInfo || []).length);
-    if (!sh.needDate && run && sh.date && ymd(run) !== ymd(sh.date) && hasFilms) {
+    const LO = S.lateOverride ? S.lateOverride[sh.name] : null;
+    if (S.lateOverride) {                // v2.16 รอบแทรกหนังตกหล่นใต้วันที่เดิม
+      const all = [...(sh.date ? [{ r: sh.d1, date: sh.date }] : []), ...secs];
+      const sec = LO && all.find(x => x.date && ymd(x.date) === ymd(run));
+      if (sec) { const nxt = secs.find(x => x.r > sec.r); mode = 'append'; topUp = { r: sec.r, end: nxt ? nxt.r : sh.lastUsed + 1, next: !!nxt }; note = 'แทรกหนังตกหล่นใต้วันที่ ' + fmtDate(run); }
+      else mode = 'skip';
+    }
+    else if (!sh.needDate && run && sh.date && ymd(run) !== ymd(sh.date) && hasFilms) {
       const lastD = secs.length ? secs[secs.length - 1].date : sh.date;
       const sec = secs.find(x => ymd(x.date) === ymd(run));
       if (sec) {
@@ -1905,7 +1920,9 @@ function computePlan(runOverride, sheetsOverride) {
       writeDate: sh.needDate && run ? Math.round(run.getTime() / 86400000) + 25569 : null, fixFirstDate: fixSerial, fixRow: sh0.d1 + 1,
       note2: fixSerial ? `วันที่แรกในใบเช็คเป็น ${fmtDate(sh0.date)} (ค้างจากเทมเพลตเก่า) → แก้เป็น ${fmtDate(sh.date)}` : '',
       blocks: sh.blocks.map((b, i) => {
-        const key = sh.name + '#' + i; const am = autoMatch(sh, b, S.sources, date);
+        const key = sh.name + '#' + i;
+        if (S.lateOverride) { const its = (LO && LO[b.codes.join(',')]) || []; return { ...b, key, source: its.length ? { late: true } : null, items: its, outs: [], backs: [], warn: '', hasDate: false, fzRows: [], skip: !its.length }; }
+        const am = autoMatch(sh, b, S.sources, date);
         let src = am.source, fam = am.family;
         if (key in S.choice) { src = S.sources.find(s => s.id === S.choice[key]) || null; }
         const moved = !(key in S.choice) ? movedTo(sheetsOverride || S.ckSheets, sh, b, src) : null;
@@ -1922,7 +1939,7 @@ function computePlan(runOverride, sheetsOverride) {
         const past = !!(insertAt || fillPast);              // วันย้อนหลัง: ไม่ลบ "ออก" → ใส่เป็นแถวใหม่แทน
         const backs = past ? [] : (r.backs || []).filter(o => !fzSet.has(o.r));
         const items = past && r.itemsAll ? r.itemsAll : r.items;
-        return { ...b, key, source: r.noSource ? null : src, auto: am.source, items, outs, backs, warn: r.warn, hasDate, fzRows };
+        return { ...b, key, source: r.noSource ? null : src, auto: am.source, items, outs, backs, warn: r.warn, hasDate, fzRows, late: past ? [] : (r.late || []) };
       })
     };
     if (topUp && !sp.blocks.some(b => b.items.length || b.backs.length)) {   // ไม่มีหนังใหม่ระหว่างวัน → ข้ามเหมือนเดิม
@@ -2050,6 +2067,20 @@ async function buildFor(c) {               // ใบเช็ค 1 ใบ → bl
     if (plan.some(p => p.needDate && !p.writeDate)) throw new Error('ยังไม่มีวันที่ กรุณากด "แก้" แล้วเลือกวันที่');
     const res = await writeChecksheet(buf.slice(0), book, prep(plan), { clear: true });
     blob = res.blob; report.push(...res.report); buf = await blob.arrayBuffer();
+    // v2.16 หนังตกหล่น → แทรกใต้วันที่ตามชื่อหนัง (ทีละวันที่) เรียงตัวอักษรในวันนั้น
+    const byDate = new Map();
+    for (const sp of plan) for (const b of sp.blocks) for (const l of b.late || []) {
+      const k = ymd(l.date); if (!byDate.has(k)) byDate.set(k, { date: l.date, map: {} });
+      const m = byDate.get(k).map; ((m[sp.sheet] = m[sp.sheet] || {})[b.codes.join(',')] = m[sp.sheet][b.codes.join(',')] || []).push(l.name);
+    }
+    for (const k of [...byDate.keys()].sort()) {
+      const { date, map } = byDate.get(k);
+      book = await readBook(buf.slice(0), c.book.name); sheets = await parseChecksheet(book);
+      S.lateOverride = map;
+      try { const res2 = await writeChecksheet(buf.slice(0), book, prep(computePlan(date, sheets)), { clear: true }); blob = res2.blob; buf = await blob.arrayBuffer(); }
+      finally { S.lateOverride = null; }
+    }
+    if (byDate.size && i < dates.length - 1) { book = await readBook(buf.slice(0), c.book.name); sheets = await parseChecksheet(book); }
   }
   return { blob, report };
 }
@@ -3371,8 +3402,9 @@ window.__freeDbg = { F, ckBlocks, packOfSheet, planWrites };
 
 
 // ===== v1.89 NotePatch (มุมขวาบน + เด้งตอนเปิดเว็บ) =====
-const APP_VER = '2.15';
+const APP_VER = '2.16';
 const PATCH_NOTES = [
+  { v: '2.16', tab: 'A', items: ['หนังตกหล่น (ไม่มีป้ายขึ้นใหม่ แต่ยังไม่มีในใบเช็ค) → แทรกใต้วันที่ตามชื่อหนัง เช่น Finnomena_V3_24Nov26 → ใต้วันที่ 24 · เรียงตัวอักษรในวันนั้น (คะแนน/ออก ย้ายตามแถว)', 'ใบเช็คไม่มีแถววันที่นั้น → แทรกใต้วันที่ก่อนหน้าที่ใกล้ที่สุดในรอบเดียวกัน · หนังที่วันที่ในชื่อตรงกับวันที่รัน ใส่ตามปกติ'] },
   { v: '2.15', tab: 'A', items: ['กันตกหล่น: หนังที่ไฟล์ไม่ใส่ป้าย "ขึ้นใหม่"/ไฮไลท์ แต่วันที่ในชื่ออยู่ในรอบนี้ (เช่น Finnomena_V3_24Nov26) และยังไม่มีในใบเช็คเลย → ใส่ให้ พร้อมแจ้งเตือนที่จอนั้น'] },
   { v: '2.14', tab: 'A', items: ['แก้ค้างที่ "กำลังบันทึกใบเช็ค…" เมื่อโฟลเดอร์ปลายทาง (ไดรฟ์เครือข่าย) ไม่ตอบ — ตรวจโฟลเดอร์ไม่เกิน 15 วินาที / บันทึกไม่เกิน 1 นาทีต่อใบ ถ้าไม่ตอบดาวน์โหลดไฟล์ให้แทน', 'ปุ่มบันทึกบอกขั้นที่กำลังทำ (ตรวจโฟลเดอร์ / เช็คไฟล์ / ทำใบเช็ค / บันทึก) พร้อมชื่อไฟล์'] },
   { v: '2.13', tab: 'A', items: ['ตอนใส่ไฟล์ บอกชื่อไฟล์ที่กำลังเปิด/อ่านอยู่จริง (เดิมค้างข้อความ "เตรียม 2 ไฟล์" ทำให้ไม่รู้ว่าติดที่ไฟล์ไหน)', 'เปิดไฟล์ไม่ได้ภายใน 30 วินาที (ไดรฟ์เครือข่ายไม่ตอบ / ไฟล์ยังไม่ได้ดาวน์โหลด) → แจ้งชื่อไฟล์และอ่านไฟล์อื่นต่อ ไม่ค้าง'] },
