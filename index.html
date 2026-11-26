@@ -391,7 +391,7 @@ button.primary{color:var(--on-tab,#fff)}
 </head>
 <body>
 <header class="top"><div class="cells" aria-hidden="true"></div><div class="in">
-  <span class="brand">PLAN.<b>B</b> Playlist</span><span class="ep">EP.2 · v2.19</span>
+  <span class="brand">PLAN.<b>B</b> Playlist</span><span class="ep">EP.2 · v2.20</span>
   <span class="sub" id="appSub">จัดรายการสื่อออนไลน์</span>
   <nav class="apptabs" id="appTabs"><button data-app="A" class="on"><i class="dot"></i>A · จัดรายการ</button><button data-app="B"><i class="dot"></i>B · สร้างโฟลเดอร์</button><button data-app="C"><i class="dot"></i>C · เติมคะแนน</button><button data-app="D"><i class="dot"></i>D · คะแนนฟรี</button></nav>
   <button type="button" class="npbtn" id="npBtn" title="ดูว่าเวอร์ชันนี้อัพเดทอะไรใหม่">📝 NotePatch <span class="npv" id="npVer"></span></button>
@@ -794,10 +794,12 @@ function parseDailyTab(book, sheetName, rows) {
   });
   let date = null;
   for (let r = 0; r < hr && !date; r++) for (const v of rows[r] || []) if (isDate(v)) { date = v; break; }
-  if (!date) {
+  { // v2.20 วันที่จากชื่อแท็บ (เช่น "26 Nov") — ถ้าเซลล์วันที่ในแท็บไม่ตรงกับชื่อแท็บ (คัดลอกแท็บมาแล้วลืมแก้วันที่) ใช้ชื่อแท็บ
     const MON = { jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11 };
     const m = /(\d{1,2})\s*([A-Za-z]{3})/.exec(sheetName), y = /(20\d\d)/.exec(book.name);
-    if (m && MON[m[2].toLowerCase()] !== undefined) date = new Date(Date.UTC(y ? +y[1] : new Date().getUTCFullYear(), MON[m[2].toLowerCase()], +m[1]));
+    const tab = m && MON[m[2].toLowerCase()] !== undefined ? new Date(Date.UTC(date ? date.getUTCFullYear() : (y ? +y[1] : new Date().getUTCFullYear()), MON[m[2].toLowerCase()], +m[1])) : null;
+    if (tab && date && ymd(tab) !== ymd(date)) { (book.dateFix = book.dateFix || []).push(`แท็บ "${sheetName}" เขียนวันที่ไว้ ${fmtDate(date)} → ใช้วันที่ตามชื่อแท็บ ${fmtDate(tab)}`); date = tab; }
+    else if (!date) date = tab;
   }
   if (!date) return null;
   const items = [], ti = (rows[hr] || []).findIndex(v => typeof v === 'string' && /^tags?$/i.test(v.trim()));
@@ -1782,6 +1784,7 @@ async function addSources(files) {
   const top = Object.entries(cnt).sort((a, b) => a[0] < b[0] ? -1 : 1)[0];
   if (top) $('inDate').value = top[0];
   else { const ds = S.sources.filter(x => x.kind === 'daily').flatMap(x => x.days.map(d => d.date)).sort((a, b) => b - a); if (ds[0] && !$('inDate').value) $('inDate').value = ymd(ds[0]); }
+  { const fx = S.srcBooks.flatMap(b => b.dateFix || []); if (fx.length) setTimeout(() => toast('⚠️ ' + fx.join(' · ')), 400); }   // v2.20
   S.choice = {}; render();
 }
 // ใบเช็ครูปหลายใบ (หลายคน)
@@ -3419,8 +3422,9 @@ window.__freeDbg = { F, ckBlocks, packOfSheet, planWrites };
 
 
 // ===== v1.89 NotePatch (มุมขวาบน + เด้งตอนเปิดเว็บ) =====
-const APP_VER = '2.19';
+const APP_VER = '2.20';
 const PATCH_NOTES = [
+  { v: '2.20', tab: 'A', items: ['Metro LED: แท็บที่ชื่อวันที่ไม่ตรงกับวันที่ที่เขียนในแท็บ (เช่น แท็บ "26 Nov" แต่ในแท็บเขียน 24/11/2026 เพราะคัดลอกมา) → ใช้วันที่ตามชื่อแท็บ และแจ้งเตือน'] },
   { v: '2.19', tab: 'B', items: ['สร้างโฟลเดอร์ Gallery: แท็บ Bangkok Jams 2 ที่ลงท้าย R (เช่น BangkokJams2R) ได้ (R) ต่อท้ายชื่อจอแล้ว (เดิมรู้จักแค่ A / B)'] },
   { v: '2.18', tab: 'A/B/C', items: ['แก้: แถววันที่ที่พิมพ์ / ซ้ำ เช่น "16//11/2026" เดิมอ่านไม่ออก → หนังทั้งวันนั้นถูกนับเป็นรอบ 1–15 แล้วถูกใส่ซ้ำเป็น "หนังตกหล่น" (ใบคุณเอกพล 40Red)', 'กันซ้ำ: หนังที่มีชื่ออยู่ในคอลัมน์จอนั้นแล้ว (วันไหนก็ได้) ไม่นับเป็นหนังตกหล่น'] },
   { v: '2.17', tab: 'A', items: ['อ่านข้อมูลการออนของแต่ละหนัง: "ไม่ออน / ห้ามออน / ยกเว้น …" ที่มีรหัสจอนี้ → ไม่ใส่ และลบออกจากใบเช็คถ้ายังไม่มีคะแนน (มีคะแนนแล้วแจ้งให้ตรวจเอง) — เช่น Finnomena V1/V2/V3 ที่จอ DGT260', 'หนังตกหล่นแทรกให้จอที่มีวันที่นั้นแล้วด้วย (เดิมข้ามทั้งจอ เช่น DGT-A1006 / DGT-A1008)', 'หนังที่มีคะแนนแล้วแต่ข้อมูลการออนบอกไม่ออนจอนี้ → ไม่ลบ ไม่ใส่ "ออก" แจ้งให้ตรวจเอง'] },
